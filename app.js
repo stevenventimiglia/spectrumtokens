@@ -6,15 +6,22 @@ const state = {
   format: "css"
 };
 
-const scales = [
+const roleScales = [
   { name: "primary", hueOffset: 0, saturationOffset: 0 },
   { name: "secondary", hueOffset: 36, saturationOffset: -4 },
   { name: "accent", hueOffset: -42, saturationOffset: 5 },
-  { name: "info", hueOffset: 18, saturationOffset: -2 },
-  { name: "success", hueOffset: 132, saturationOffset: -8 },
-  { name: "warning", hueOffset: 184, saturationOffset: 1 },
-  { name: "danger", hueOffset: -152, saturationOffset: 2 },
-  { name: "grey", hueOffset: 0, saturationOffset: -78, neutral: true }
+  { name: "info", hueOffset: 18, saturationOffset: -2 }
+];
+
+const spectrumScales = [
+  { name: "yellow", hue: 60 },
+  { name: "orange", hue: 32 },
+  { name: "red", hue: 0 },
+  { name: "magenta", hue: 300 },
+  { name: "blue-violet", hue: 258 },
+  { name: "indigo", hue: 230 },
+  { name: "cyan", hue: 190 },
+  { name: "green", hue: 128 }
 ];
 
 const depthStops = {
@@ -30,6 +37,7 @@ const lightnessRange = document.querySelector("#lightnessRange");
 const darknessRange = document.querySelector("#darknessRange");
 const lightnessOutput = document.querySelector("#lightnessOutput");
 const darknessOutput = document.querySelector("#darknessOutput");
+const roleStrip = document.querySelector("#roleStrip");
 const spectrumGrid = document.querySelector("#spectrumGrid");
 const exportLabel = document.querySelector("#exportLabel");
 const exportText = document.querySelector("#exportText");
@@ -129,21 +137,30 @@ function mixLightness(index, total, lightReach, darkReach) {
   return lightReach + (darkReach - lightReach) * ratio;
 }
 
-function buildTokenData() {
+function buildRoleData() {
+  const primaryHsl = rgbToHsl(hexToRgb(state.primary));
+  return roleScales.map((role) => {
+    const hue = (primaryHsl.h + role.hueOffset + 360) % 360;
+    const saturation = clamp(primaryHsl.s + role.saturationOffset, 42, 94);
+    const lightness = clamp(primaryHsl.l, state.darkReach, state.lightReach);
+    const hex = rgbToHex(hslToRgb({ h: hue, s: saturation, l: lightness }));
+    return {
+      name: role.name,
+      hex
+    };
+  });
+}
+
+function buildSpectrumData() {
   const primaryHsl = rgbToHsl(hexToRgb(state.primary));
   const stops = depthStops[state.depth];
+  const baseSaturation = clamp(primaryHsl.s, 42, 94);
 
-  return scales.map((scale) => {
-    const baseSaturation = scale.neutral
-      ? clamp(primaryHsl.s * 0.08, 4, 14)
-      : clamp(primaryHsl.s + scale.saturationOffset, 42, 94);
-    const baseHue = (primaryHsl.h + scale.hueOffset + 360) % 360;
+  return spectrumScales.map((scale) => {
     const tokens = stops.map((stop, index) => {
       const lightness = mixLightness(index, stops.length, state.lightReach, state.darkReach);
-      const saturation = scale.neutral
-        ? clamp(baseSaturation - index * 0.22, 3, 14)
-        : clamp(baseSaturation - Math.max(0, index - 4) * 2.4, 34, 94);
-      const hex = rgbToHex(hslToRgb({ h: baseHue, s: saturation, l: lightness }));
+      const saturation = clamp(baseSaturation - Math.max(0, index - 4) * 2.4, 34, 94);
+      const hex = rgbToHex(hslToRgb({ h: scale.hue, s: saturation, l: lightness }));
       return {
         name: `${scale.name}-${stop}`,
         stop,
@@ -158,57 +175,66 @@ function buildTokenData() {
   });
 }
 
-function toCamelCase(tokenName) {
-  return tokenName.replace(/-([a-z0-9])/g, (_, character) => character.toUpperCase());
-}
-
-function getFlatTokens(data) {
+function getFlatSpectrumTokens(data) {
   return data.flatMap((scale) => scale.tokens.map((token) => ({ ...token, scale: scale.name })));
 }
 
-function buildCss(data) {
-  const lines = [":root {", "  /* Primitive color tokens */"];
-  data.forEach((scale) => {
+function roleReference(roleData, name, fallback) {
+  return roleData.some((role) => role.name === name) ? `var(--${name})` : fallback;
+}
+
+function buildCss(roleData, spectrumData) {
+  const lines = [":root {", "  /* Role color tokens */"];
+  roleData.forEach((role) => lines.push(`  --${role.name}: ${role.hex};`));
+  lines.push("", "  /* Primitive color tokens */");
+  spectrumData.forEach((scale) => {
     lines.push(`  /* ${scale.name} */`);
     scale.tokens.forEach((token) => lines.push(`  --${token.name}: ${token.hex};`));
   });
   lines.push("", "  /* Semantic aliases */");
-  lines.push("  --color-primary: var(--primary-500);");
-  lines.push("  --color-primary-hover: var(--primary-600);");
-  lines.push("  --color-primary-subtle: var(--primary-100);");
-  lines.push("  --color-secondary: var(--secondary-500);");
-  lines.push("  --color-accent: var(--accent-500);");
-  lines.push("  --color-info: var(--info-500);");
-  lines.push("  --color-success: var(--success-500);");
-  lines.push("  --color-warning: var(--warning-500);");
-  lines.push("  --color-danger: var(--danger-500);");
-  lines.push("  --color-background: var(--grey-50);");
+  lines.push(`  --color-primary: ${roleReference(roleData, "primary", state.primary)};`);
+  lines.push(`  --color-primary-hover: ${roleReference(roleData, "primary", state.primary)};`);
+  lines.push(`  --color-secondary: ${roleReference(roleData, "secondary", "var(--cyan-500)")};`);
+  lines.push(`  --color-accent: ${roleReference(roleData, "accent", "var(--magenta-500)")};`);
+  lines.push(`  --color-info: ${roleReference(roleData, "info", "var(--blue-violet-500)")};`);
+  spectrumData.forEach((scale) => lines.push(`  --color-${scale.name}: var(--${scale.name}-500);`));
+  lines.push("  --color-background: #f8fafc;");
   lines.push("  --color-surface: #ffffff;");
-  lines.push("  --color-border: var(--grey-200);");
-  lines.push("  --color-text: var(--grey-700);");
+  lines.push("  --color-border: #d8e0ea;");
+  lines.push("  --color-text: #344153;");
   lines.push("}");
   return lines.join("\n");
 }
 
-function buildJs(data) {
-  const payload = {};
-  data.forEach((scale) => {
-    payload[scale.name] = {};
+function buildJs(roleData, spectrumData) {
+  const colors = {};
+  spectrumData.forEach((scale) => {
+    colors[scale.name] = {};
     scale.tokens.forEach((token) => {
-      payload[scale.name][token.stop] = token.hex;
+      colors[scale.name][token.stop] = token.hex;
     });
   });
-  return `export const colorTokens = ${JSON.stringify(payload, null, 2)};\n\nexport const semanticColors = {\n  primary: colorTokens.primary[500],\n  primaryHover: colorTokens.primary[600],\n  primarySubtle: colorTokens.primary[100],\n  secondary: colorTokens.secondary[500],\n  accent: colorTokens.accent[500],\n  info: colorTokens.info[500],\n  success: colorTokens.success[500],\n  warning: colorTokens.warning[500],\n  danger: colorTokens.danger[500],\n  background: colorTokens.grey[50],\n  border: colorTokens.grey[200],\n  text: colorTokens.grey[700]\n};`;
+  const roles = Object.fromEntries(roleData.map((role) => [role.name, role.hex]));
+  return `export const roleColors = ${JSON.stringify(roles, null, 2)};\n\nexport const colorTokens = ${JSON.stringify(colors, null, 2)};\n\nexport const semanticColors = {\n  primary: roleColors.primary,\n  primaryHover: roleColors.primary,\n  secondary: roleColors.secondary,\n  accent: roleColors.accent,\n  info: roleColors.info,\n  background: \"#f8fafc\",\n  border: \"#d8e0ea\",\n  text: \"#344153\"\n};`;
 }
 
-function buildFigma(data) {
+function buildFigma(roleData, spectrumData) {
   const figma = {
-    color: {}
+    color: {
+      role: {},
+      spectrum: {}
+    }
   };
-  data.forEach((scale) => {
-    figma.color[scale.name] = {};
+  roleData.forEach((role) => {
+    figma.color.role[role.name] = {
+      value: role.hex,
+      type: "color"
+    };
+  });
+  spectrumData.forEach((scale) => {
+    figma.color.spectrum[scale.name] = {};
     scale.tokens.forEach((token) => {
-      figma.color[scale.name][token.stop] = {
+      figma.color.spectrum[scale.name][token.stop] = {
         value: token.hex,
         type: "color"
       };
@@ -217,14 +243,25 @@ function buildFigma(data) {
   return JSON.stringify(figma, null, 2);
 }
 
-function buildJson(data) {
+function buildJson(roleData, spectrumData) {
   const tokens = {
-    color: {}
+    color: {
+      role: {},
+      spectrum: {},
+      semantic: {}
+    }
   };
-  data.forEach((scale) => {
-    tokens.color[scale.name] = {};
+  roleData.forEach((role) => {
+    tokens.color.role[role.name] = {
+      value: role.hex,
+      type: "color",
+      name: role.name
+    };
+  });
+  spectrumData.forEach((scale) => {
+    tokens.color.spectrum[scale.name] = {};
     scale.tokens.forEach((token) => {
-      tokens.color[scale.name][token.stop] = {
+      tokens.color.spectrum[scale.name][token.stop] = {
         value: token.hex,
         type: "color",
         name: token.name
@@ -232,19 +269,22 @@ function buildJson(data) {
     });
   });
   tokens.color.semantic = {
-    primary: { value: "{color.primary.500}", type: "color" },
-    primaryHover: { value: "{color.primary.600}", type: "color" },
+    primary: { value: "{color.role.primary}", type: "color" },
+    secondary: { value: "{color.role.secondary}", type: "color" },
+    accent: { value: "{color.role.accent}", type: "color" },
+    info: { value: "{color.role.info}", type: "color" },
     surface: { value: "#ffffff", type: "color" },
-    text: { value: "{color.grey.700}", type: "color" },
-    border: { value: "{color.grey.200}", type: "color" }
+    text: { value: "#344153", type: "color" },
+    border: { value: "#d8e0ea", type: "color" }
   };
   return JSON.stringify(tokens, null, 2);
 }
 
-function buildTailwind(data) {
+function buildTailwind(roleData, spectrumData) {
   const lines = ["export default {", "  theme: {", "    extend: {", "      colors: {"];
-  data.forEach((scale) => {
-    lines.push(`        ${scale.name}: {`);
+  roleData.forEach((role) => lines.push(`        "${role.name}": "${role.hex}",`));
+  spectrumData.forEach((scale) => {
+    lines.push(`        "${scale.name}": {`);
     scale.tokens.forEach((token) => lines.push(`          ${token.stop}: "${token.hex}",`));
     lines.push("        },");
   });
@@ -252,11 +292,23 @@ function buildTailwind(data) {
   return lines.join("\n");
 }
 
-function renderSpectrum(data) {
+function renderRoles(roleData) {
+  roleStrip.innerHTML = "";
+  roleData.forEach((role) => {
+    const swatch = document.createElement("div");
+    swatch.className = "role-swatch";
+    swatch.style.setProperty("--role-color", role.hex);
+    swatch.style.setProperty("--role-ink", getReadableInk(role.hex));
+    swatch.innerHTML = `<span aria-hidden="true"></span><strong>${role.name}</strong><small>${role.hex}</small>`;
+    roleStrip.append(swatch);
+  });
+}
+
+function renderSpectrum(spectrumData) {
   spectrumGrid.innerHTML = "";
   spectrumGrid.style.setProperty("--column-count", depthStops[state.depth].length);
 
-  data.forEach((scale) => {
+  spectrumData.forEach((scale) => {
     const row = document.createElement("article");
     row.className = "scale-row";
 
@@ -266,6 +318,7 @@ function renderSpectrum(data) {
 
     const swatches = document.createElement("div");
     swatches.className = "swatch-list";
+    swatches.style.setProperty("--scale-column-count", scale.tokens.length);
 
     scale.tokens.forEach((token) => {
       const swatch = document.createElement("div");
@@ -281,13 +334,13 @@ function renderSpectrum(data) {
   });
 }
 
-function renderExports(data) {
+function renderExports(roleData, spectrumData) {
   const exports = {
-    css: buildCss(data),
-    js: buildJs(data),
-    figma: buildFigma(data),
-    json: buildJson(data),
-    tailwind: buildTailwind(data)
+    css: buildCss(roleData, spectrumData),
+    js: buildJs(roleData, spectrumData),
+    figma: buildFigma(roleData, spectrumData),
+    json: buildJson(roleData, spectrumData),
+    tailwind: buildTailwind(roleData, spectrumData)
   };
   const labels = {
     css: "Global CSS output",
@@ -300,18 +353,21 @@ function renderExports(data) {
   exportText.value = exports[state.format];
 }
 
-function updatePreview(data) {
+function updatePreview(roleData, spectrumData) {
   const root = document.documentElement;
-  const byName = Object.fromEntries(getFlatTokens(data).map((token) => [token.name, token.hex]));
-  root.style.setProperty("--primary", byName["primary-500"]);
-  root.style.setProperty("--primary-soft", byName["primary-100"]);
-  root.style.setProperty("--primary-deep", byName["primary-700"] || byName["primary-600"]);
-  root.style.setProperty("--focus", byName["primary-500"]);
-  root.style.setProperty("--preview-bg", byName["primary-50"]);
-  root.style.setProperty("--preview-border", byName["primary-200"]);
-  root.style.setProperty("--preview-primary", byName["primary-600"] || byName["primary-500"]);
-  root.style.setProperty("--preview-on-primary", getReadableInk(byName["primary-600"] || byName["primary-500"]));
-  root.style.setProperty("--preview-text", byName["grey-700"] || "#172033");
+  const roles = Object.fromEntries(roleData.map((role) => [role.name, role.hex]));
+  const byName = Object.fromEntries(getFlatSpectrumTokens(spectrumData).map((token) => [token.name, token.hex]));
+  const previewPrimary = roles.primary || state.primary;
+
+  root.style.setProperty("--primary", previewPrimary);
+  root.style.setProperty("--primary-soft", byName["blue-violet-100"] || previewPrimary);
+  root.style.setProperty("--primary-deep", byName["blue-violet-600"] || previewPrimary);
+  root.style.setProperty("--focus", previewPrimary);
+  root.style.setProperty("--preview-bg", byName["blue-violet-100"] || previewPrimary);
+  root.style.setProperty("--preview-border", byName["blue-violet-200"] || previewPrimary);
+  root.style.setProperty("--preview-primary", previewPrimary);
+  root.style.setProperty("--preview-on-primary", getReadableInk(previewPrimary));
+  root.style.setProperty("--preview-text", "#172033");
 }
 
 function render() {
@@ -322,13 +378,15 @@ function render() {
   hexStatus.textContent = "Valid hex color";
   hexStatus.classList.remove("error");
 
-  const data = buildTokenData();
-  const count = data.reduce((total, scale) => total + scale.tokens.length, 0);
-  tokenCount.textContent = `${count} tokens`;
+  const roleData = buildRoleData();
+  const spectrumData = buildSpectrumData();
+  const count = spectrumData.reduce((total, scale) => total + scale.tokens.length, 0);
+  tokenCount.textContent = `${count} color tokens`;
 
-  renderSpectrum(data);
-  renderExports(data);
-  updatePreview(data);
+  renderRoles(roleData);
+  renderSpectrum(spectrumData);
+  renderExports(roleData, spectrumData);
+  updatePreview(roleData, spectrumData);
 }
 
 picker.addEventListener("input", (event) => {
