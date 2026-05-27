@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Spectrum Tokens</title>
+    <link rel="stylesheet" href="styles.css">
+  </head>
+  <body>
+    <main class="app-shell">
+      <section class="workbench" aria-labelledby="tool-title">
+        <div class="intro-panel">
+          <p class="eyebrow">Design system color generator</p>
+          <h1 id="tool-title">Spectrum Tokens</h1>
+          <p class="lede">Build primitive color scales, semantic aliases, and export-ready token sets from one primary brand color.</p>
+        </div>
+
+        <form class="control-panel" id="controls">
+          <div class="field-group color-field">
+            <label for="colorPicker">Primary color</label>
+            <div class="color-input-row">
+              <input id="colorPicker" name="colorPicker" type="color" value="#3b82f6" aria-label="Pick primary color">
+              <input id="hexInput" name="hexInput" type="text" value="#3B82F6" inputmode="text" maxlength="7" spellcheck="false" aria-describedby="hexStatus">
+            </div>
+            <p class="status-text" id="hexStatus" role="status">Valid hex color</p>
+          </div>
+
+          <div class="field-group">
+            <div class="label-row">
+              <label for="lightnessRange">Light tint reach</label>
+              <output id="lightnessOutput" for="lightnessRange">96%</output>
+            </div>
+            <input id="lightnessRange" name="lightnessRange" type="range" min="82" max="99" value="96">
+          </div>
+
+          <div class="field-group">
+            <div class="label-row">
+              <label for="darknessRange">Dark shade reach</label>
+              <output id="darknessOutput" for="darknessRange">24%</output>
+            </div>
+            <input id="darknessRange" name="darknessRange" type="range" min="8" max="34" value="24">
+          </div>
+
+          <div class="field-group">
+            <label for="tokenDepth">Scale depth</label>
+            <div class="segmented" id="tokenDepth" role="radiogroup" aria-label="Scale depth">
+              <label><input type="radio" name="depth" value="7"><span>7</span></label>
+              <label><input type="radio" name="depth" value="8" checked><span>8</span></label>
+              <label><input type="radio" name="depth" value="10"><span>10</span></label>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <section class="preview-band" aria-label="Generated system preview">
+        <div class="preview-surface">
+          <div>
+            <span class="preview-kicker">Semantic preview</span>
+            <h2>Accessible interface colors mapped from the generated primitives.</h2>
+          </div>
+          <div class="preview-actions">
+            <button type="button">Primary</button>
+            <button type="button" class="ghost-button">Secondary</button>
+          </div>
+          <div class="mini-system">
+            <span>Surface</span>
+            <strong>Text</strong>
+            <small>Border and focus states</small>
+          </div>
+        </div>
+      </section>
+
+      <section class="spectrum-section" aria-labelledby="spectrum-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Primitive tokens</p>
+            <h2 id="spectrum-title">Generated Spectrum</h2>
+          </div>
+          <p id="tokenCount">64 tokens</p>
+        </div>
+        <div class="spectrum-grid" id="spectrumGrid"></div>
+      </section>
+
+      <section class="export-section" aria-labelledby="export-title">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Export</p>
+            <h2 id="export-title">Production Tokens</h2>
+          </div>
+        </div>
+
+        <div class="export-container">
+          <div class="tab-list" role="tablist" aria-label="Export formats">
+            <button type="button" class="tab-button" id="tab-css" role="tab" aria-selected="true" aria-controls="panel-css" data-format="css">Global CSS</button>
+            <button type="button" class="tab-button" id="tab-js" role="tab" aria-selected="false" aria-controls="panel-js" data-format="js">JS</button>
+            <button type="button" class="tab-button" id="tab-figma" role="tab" aria-selected="false" aria-controls="panel-figma" data-format="figma">Figma</button>
+            <button type="button" class="tab-button" id="tab-json" role="tab" aria-selected="false" aria-controls="panel-json" data-format="json">Tokens JSON</button>
+            <button type="button" class="tab-button" id="tab-tailwind" role="tab" aria-selected="false" aria-controls="panel-tailwind" data-format="tailwind">Tailwind</button>
+          </div>
+
+          <div class="export-panel" id="panel-css" role="tabpanel" aria-labelledby="tab-css">
+            <div class="textarea-toolbar">
+              <label for="exportText" id="exportLabel">Global CSS output</label>
+              <button type="button" class="icon-button" id="copyButton" aria-label="Copy current export">
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 7a3 3 0 0 1 3-3h6a3 3 0 0 1 3 3v6a3 3 0 0 1-3 3h-1v1a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3v-6a3 3 0 0 1 3-3h1V7Zm2 1h3a3 3 0 0 1 3 3v3h1a1 1 0 0 0 1-1V7a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v1Zm-3 2a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1v-6a1 1 0 0 0-1-1H7Z"/></svg>
+              </button>
+            </div>
+            <textarea id="exportText" spellcheck="false"></textarea>
+            <p class="status-text" id="copyStatus" role="status">Ready to copy</p>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="app.js"></script>
+  </body>
+</html>
