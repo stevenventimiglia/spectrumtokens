@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "qa": "npm run build && node scripts/qa.mjs",
+    "build": "node scripts/build.mjs",
+    "start": "npm run build && node scripts/serve.mjs"
+  },
+  "devDependencies": {}
+}
