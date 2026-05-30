@@ -22,6 +22,7 @@
               <input id="colorPicker" name="colorPicker" type="color" value="#3b82f6" aria-labelledby="primaryColorLabel colorPickerLabel">
               <input id="hexInput" name="hexInput" type="text" value="#3B82F6" inputmode="text" maxlength="7" spellcheck="false" aria-labelledby="primaryColorLabel hexInputLabel" aria-describedby="hexStatus">
               <button class="add-primary-button" id="addPrimaryButton" type="button" aria-label="Save current primary color">+</button>
+              <button class="pantone-primary-button" id="pantonePrimaryButton" type="button">Match</button>
               <div class="saved-primary-swatches" id="savedPrimarySwatches" aria-label="Saved primary colors"></div>
             </div>
             <span class="sr-only" id="colorPickerLabel">color picker</span>
@@ -94,6 +95,7 @@
           <button type="button" data-copy="property">Property</button>
           <button type="button" data-copy="scss-var">SCSS var</button>
           <button type="button" data-copy="scss-property">SCSS property</button>
+          <button type="button" data-copy="pantone">Pantone match</button>
         </div>
       </section>
       <section class="export-section" aria-labelledby="export-title">
@@ -130,6 +132,25 @@
         </div>
       </section>
     </main>
+    <dialog class="pantone-modal" id="pantoneModal" aria-labelledby="pantoneModalTitle">
+      <div class="pantone-modal-header">
+        <div>
+          <p class="eyebrow">Color reference</p>
+          <h2 id="pantoneModalTitle">Pantone Match</h2>
+        </div>
+        <form method="dialog">
+          <button class="modal-close" type="submit" aria-label="Close Pantone match">x</button>
+        </form>
+      </div>
+      <div class="pantone-target">
+        <span id="pantoneTargetSwatch" aria-hidden="true"></span>
+        <div>
+          <strong id="pantoneTargetHex">#3B82F6</strong>
+          <p id="pantoneMatchStatus" role="status">Ready to match</p>
+        </div>
+      </div>
+      <div class="pantone-results" id="pantoneResults"></div>
+    </dialog>
     <script src="assets/js/app.min.js" defer></script>
   </body>
 </html>

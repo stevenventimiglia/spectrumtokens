@@ -67,6 +67,7 @@ const picker = document.querySelector("#colorPicker");
 const hexInput = document.querySelector("#hexInput");
 const hexStatus = document.querySelector("#hexStatus");
 const addPrimaryButton = document.querySelector("#addPrimaryButton");
+const pantonePrimaryButton = document.querySelector("#pantonePrimaryButton");
 const savedPrimarySwatches = document.querySelector("#savedPrimarySwatches");
 const lightnessRange = document.querySelector("#lightnessRange");
 const darknessRange = document.querySelector("#darknessRange");
@@ -86,8 +87,14 @@ const copyButton = document.querySelector("#copyButton");
 const copyStatus = document.querySelector("#copyStatus");
 const tokenCount = document.querySelector("#tokenCount");
 const tabButtons = [...document.querySelectorAll(".tab-button")];
+const pantoneModal = document.querySelector("#pantoneModal");
+const pantoneTargetSwatch = document.querySelector("#pantoneTargetSwatch");
+const pantoneTargetHex = document.querySelector("#pantoneTargetHex");
+const pantoneMatchStatus = document.querySelector("#pantoneMatchStatus");
+const pantoneResults = document.querySelector("#pantoneResults");
 let activeCopyTarget = null;
 let activeCopyAnchor = null;
+let pantoneDefinitionsPromise = null;
 let generatedId = 0;
 
 function nextGeneratedId(prefix) {
@@ -152,6 +159,82 @@ function hexToRgb(hex) {
     g: parseInt(value.slice(2, 4), 16),
     b: parseInt(value.slice(4, 6), 16)
   };
+}
+
+function srgbChannelToLinear(channel) {
+  const value = channel / 255;
+  return value <= 0.04045 ? value / 12.92 : ((value + 0.055) / 1.055) ** 2.4;
+}
+
+function xyzToLabPivot(value) {
+  return value > 0.008856 ? Math.cbrt(value) : (7.787 * value) + (16 / 116);
+}
+
+function rgbToLab({ r, g, b }) {
+  const red = srgbChannelToLinear(r);
+  const green = srgbChannelToLinear(g);
+  const blue = srgbChannelToLinear(b);
+  const x = (red * 0.4124564) + (green * 0.3575761) + (blue * 0.1804375);
+  const y = (red * 0.2126729) + (green * 0.7151522) + (blue * 0.0721750);
+  const z = (red * 0.0193339) + (green * 0.1191920) + (blue * 0.9503041);
+  const fx = xyzToLabPivot(x / 0.95047);
+  const fy = xyzToLabPivot(y);
+  const fz = xyzToLabPivot(z / 1.08883);
+  return [(116 * fy) - 16, 500 * (fx - fy), 200 * (fy - fz)];
+}
+
+function degreesToRadians(degrees) {
+  return degrees * (Math.PI / 180);
+}
+
+function radiansToDegrees(radians) {
+  return radians * (180 / Math.PI);
+}
+
+function deltaE2000(first, second) {
+  const [l1, a1, b1] = first;
+  const [l2, a2, b2] = second;
+  const c1 = Math.sqrt((a1 ** 2) + (b1 ** 2));
+  const c2 = Math.sqrt((a2 ** 2) + (b2 ** 2));
+  const cBar = (c1 + c2) / 2;
+  const cBar7 = cBar ** 7;
+  const g = 0.5 * (1 - Math.sqrt(cBar7 / (cBar7 + (25 ** 7))));
+  const a1Prime = (1 + g) * a1;
+  const a2Prime = (1 + g) * a2;
+  const c1Prime = Math.sqrt((a1Prime ** 2) + (b1 ** 2));
+  const c2Prime = Math.sqrt((a2Prime ** 2) + (b2 ** 2));
+  const h1Prime = (radiansToDegrees(Math.atan2(b1, a1Prime)) + 360) % 360;
+  const h2Prime = (radiansToDegrees(Math.atan2(b2, a2Prime)) + 360) % 360;
+  const deltaLPrime = l2 - l1;
+  const deltaCPrime = c2Prime - c1Prime;
+  let deltaH = h2Prime - h1Prime;
+  if (c1Prime * c2Prime === 0) deltaH = 0;
+  else if (deltaH > 180) deltaH -= 360;
+  else if (deltaH < -180) deltaH += 360;
+  const deltaHPrime = 2 * Math.sqrt(c1Prime * c2Prime) * Math.sin(degreesToRadians(deltaH / 2));
+  const lBarPrime = (l1 + l2) / 2;
+  const cBarPrime = (c1Prime + c2Prime) / 2;
+  let hBarPrime = h1Prime + h2Prime;
+  if (c1Prime * c2Prime === 0) hBarPrime = h1Prime + h2Prime;
+  else if (Math.abs(h1Prime - h2Prime) > 180) hBarPrime = hBarPrime < 360 ? (hBarPrime + 360) / 2 : (hBarPrime - 360) / 2;
+  else hBarPrime /= 2;
+  const t = 1 -
+    (0.17 * Math.cos(degreesToRadians(hBarPrime - 30))) +
+    (0.24 * Math.cos(degreesToRadians(2 * hBarPrime))) +
+    (0.32 * Math.cos(degreesToRadians((3 * hBarPrime) + 6))) -
+    (0.20 * Math.cos(degreesToRadians((4 * hBarPrime) - 63)));
+  const deltaTheta = 30 * Math.exp(-(((hBarPrime - 275) / 25) ** 2));
+  const rC = 2 * Math.sqrt((cBarPrime ** 7) / ((cBarPrime ** 7) + (25 ** 7)));
+  const sL = 1 + ((0.015 * ((lBarPrime - 50) ** 2)) / Math.sqrt(20 + ((lBarPrime - 50) ** 2)));
+  const sC = 1 + (0.045 * cBarPrime);
+  const sH = 1 + (0.015 * cBarPrime * t);
+  const rT = -Math.sin(degreesToRadians(2 * deltaTheta)) * rC;
+  return Math.sqrt(
+    ((deltaLPrime / sL) ** 2) +
+    ((deltaCPrime / sC) ** 2) +
+    ((deltaHPrime / sH) ** 2) +
+    (rT * (deltaCPrime / sC) * (deltaHPrime / sH))
+  );
 }
 
 function rgbToHex({ r, g, b }) {
@@ -304,6 +387,73 @@ function roleMap(roleData) {
 function setPrimaryColor(hex) {
   state.primary = hex;
   render();
+}
+
+function loadPantoneDefinitions() {
+  if (!pantoneDefinitionsPromise) {
+    pantoneDefinitionsPromise = fetch("data/pantone-definitions.json").then((response) => {
+      if (!response.ok) throw new Error("Pantone definitions could not be loaded");
+      return response.json();
+    });
+  }
+  return pantoneDefinitionsPromise;
+}
+
+function getPantoneQuality(definitions, deltaE) {
+  return definitions.matching.thresholds.find((threshold) => threshold.maxDeltaE === null || deltaE <= threshold.maxDeltaE)?.label || "Distant";
+}
+
+function getPantoneMatches(definitions, hex, limit = definitions.matching.defaultLimit) {
+  const targetLab = rgbToLab(hexToRgb(hex));
+  return definitions.colors
+    .map((color) => {
+      const deltaE = deltaE2000(targetLab, color.lab);
+      return { ...color, deltaE, quality: getPantoneQuality(definitions, deltaE) };
+    })
+    .sort((a, b) => a.deltaE - b.deltaE)
+    .slice(0, limit);
+}
+
+function renderPantoneResults(matches) {
+  pantoneResults.innerHTML = "";
+  removeDynamicRules((selectorText) => selectorText.startsWith('[data-pantone-result-id='));
+  matches.forEach((match) => {
+    const row = document.createElement("article");
+    const resultId = nextGeneratedId("pantone-result");
+    row.className = "pantone-result";
+    row.dataset.pantoneResultId = resultId;
+    setDynamicRule(`[data-pantone-result-id="${resultId}"]`, `--pantone-result-color: ${match.hex};`);
+    row.innerHTML = `
+      <span class="pantone-result-swatch" aria-hidden="true"></span>
+      <div>
+        <h3>${match.code}</h3>
+        <p>${match.library.label} - ${match.hex}</p>
+      </div>
+      <div class="pantone-score">
+        <strong>${match.quality}</strong>
+        <span>Delta E ${match.deltaE.toFixed(2)}</span>
+      </div>
+    `;
+    pantoneResults.append(row);
+  });
+}
+
+async function openPantoneModal(hex) {
+  const normalized = normalizeHex(hex);
+  if (!normalized) return;
+  pantoneTargetHex.textContent = normalized;
+  setDynamicRule("#pantoneTargetSwatch", `--pantone-target-color: ${normalized};`);
+  pantoneResults.innerHTML = "";
+  pantoneMatchStatus.textContent = "Loading Pantone definitions";
+  pantoneModal.showModal();
+  try {
+    const definitions = await loadPantoneDefinitions();
+    const matches = getPantoneMatches(definitions, normalized);
+    renderPantoneResults(matches);
+    pantoneMatchStatus.textContent = `${definitions.colors.length} definitions checked`;
+  } catch {
+    pantoneMatchStatus.textContent = "Pantone definitions could not be loaded from this page context";
+  }
 }
 
 function spectrumMap(spectrumData) {
@@ -966,6 +1116,11 @@ document.querySelectorAll("input[name='depth']").forEach((input) => {
 copyMenu.addEventListener("click", (event) => {
   const button = event.target.closest("button[data-copy]");
   if (!button) return;
+  if (button.dataset.copy === "pantone") {
+    openPantoneModal(activeCopyTarget?.hex || state.primary);
+    closeCopyMenu();
+    return;
+  }
   copyText(getCopyValue(activeCopyTarget, button.dataset.copy), event);
   closeCopyMenu();
 });
@@ -1019,6 +1174,7 @@ tabButtons.forEach((button, index) => {
 });
 
 downloadButton.addEventListener("click", downloadExport);
+pantonePrimaryButton.addEventListener("click", () => openPantoneModal(state.primary));
 
 document.querySelector("#controls").addEventListener("submit", (event) => event.preventDefault());
 

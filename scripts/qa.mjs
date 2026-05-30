@@ -239,6 +239,26 @@ check("Generated app render and exports are valid", () => {
   assert(payload.greyChanges, "Grey scale should react to primary color changes");
 });
 
+check("Pantone definitions and matcher hooks are valid", () => {
+  const data = JSON.parse(read("data/pantone-definitions.json"));
+  const js = read("assets/js/app.js");
+  const html = read("index.html");
+  assert(data.schema === "spectrum-pantone-definitions/v1", "Pantone definitions schema mismatch");
+  assert(data.matching.algorithm === "ciede2000", "Pantone matcher should use CIEDE2000");
+  assert(data.colors.length >= 3200, "Pantone definitions should include the pantoner reference set");
+  assert(new Set(data.colors.map((color) => color.id)).size === data.colors.length, "Pantone definition ids must be unique");
+  data.colors.forEach((color) => {
+    assert(/^#[0-9A-F]{6}$/.test(color.hex), `Invalid Pantone hex: ${color.id}`);
+    assert(Array.isArray(color.rgb) && color.rgb.length === 3, `Invalid Pantone RGB: ${color.id}`);
+    assert(Array.isArray(color.lab) && color.lab.length === 3, `Invalid Pantone Lab: ${color.id}`);
+    assert(color.source?.package === "pantoner", `Missing Pantone source metadata: ${color.id}`);
+  });
+  assert(html.includes("pantoneModal"), "Pantone match modal should be present");
+  assert(html.includes('data-copy="pantone"'), "Swatch copy menu should expose Pantone matching");
+  assert(js.includes("function deltaE2000"), "App should include local CIEDE2000 matching");
+  assert(js.includes("data/pantone-definitions.json"), "App should load local Pantone definitions");
+});
+
 check("Generated swatch text contrast meets WCAG AA", () => {
   const probe = runAppProbe(`
     const failures = [];
