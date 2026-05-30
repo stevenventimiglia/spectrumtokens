@@ -65,7 +65,7 @@ function runAppProbe(extra = "") {
   };
   const elements = new Map();
   const get = (key) => elements.get(key) || (elements.set(key, makeElement()), elements.get(key));
-  const tabFormats = ["css", "js", "figma", "json", "tailwind"];
+  const tabFormats = ["css", "js", "figma", "json", "scss", "tailwind"];
   const context = {
     console,
     navigator: { clipboard: { writeText: async () => {} }, serviceWorker: { register: async () => ({}) } },
@@ -164,9 +164,12 @@ check("Labels, tabs, and ARIA references are valid", () => {
 });
 
 check("Visible button text is included in accessible names", () => {
+  const html = read("index.html");
   const js = read("assets/js/app.js");
   assert(js.includes('`${formatExportLabel(role.name)} ${role.hex}. Open copy options`'), "Role swatch names must include visible role and hex text");
   assert(js.includes('`${token.hex}. Open copy options for ${token.name}`'), "Spectrum swatch names must include visible hex text");
+  assert(html.includes('data-copy="scss-var"'), "Copy menu should include SCSS variable copy");
+  assert(html.includes('data-copy="scss-property"'), "Copy menu should include SCSS property copy");
 });
 
 check("PWA manifest, icons, and service worker are present", () => {
@@ -200,6 +203,10 @@ check("Generated app render and exports are valid", () => {
       cssLight: buildCss(sets).includes('/* ==================== Light Theme ==================== */'),
       cssBlue: buildCss(sets).includes('/* Blue */'),
       jsBlue: buildJs(sets).includes('// Blue'),
+      scssPartial: buildScss(sets).includes('$palette-roles: (') &&
+        buildScss(sets).includes('$palette-spectrum: (') &&
+        buildScss(sets).includes('@mixin palette-css-vars($mode: light)') &&
+        buildScss(sets).includes('--color-primary: var(--primary);'),
       tailwindDark: buildTailwind(sets).includes('// ==================== Dark Theme ===================='),
       jsonOk: Boolean(JSON.parse(buildJson(sets)).color.modes.dark),
       figmaOk: Boolean(JSON.parse(buildFigma(sets)).modes.light),
@@ -215,7 +222,7 @@ check("Generated app render and exports are valid", () => {
   const payload = probe.context.__payload;
   assert(payload.toneRules === 8, `Expected 8 tone-strip rules, got ${payload.toneRules}`);
   assert(payload.swatchRules === 72, `Expected 72 default swatch rules, got ${payload.swatchRules}`);
-  assert(payload.cssLight && payload.cssBlue && payload.jsBlue && payload.tailwindDark, "Export comments missing");
+  assert(payload.cssLight && payload.cssBlue && payload.jsBlue && payload.scssPartial && payload.tailwindDark, "Export comments missing");
   assert(payload.jsonOk && payload.figmaOk, "JSON/Figma exports did not parse");
   assert(payload.greyChanges, "Grey scale should react to primary color changes");
 });

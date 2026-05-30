@@ -487,6 +487,124 @@ function buildJson(tokenSets) {
   return JSON.stringify(tokens, null, 2);
 }
 
+function appendScssMap(lines, name, callback) {
+  lines.push(`${name}: (`);
+  callback("  ");
+  lines.push(") !default;");
+}
+
+function buildScss(tokenSets) {
+  const lines = [
+    "// Spectrum Tokens palette partial.",
+    "// Import with `@use \"palette\" as *;` and include `palette-css-vars()` where variables should be emitted.",
+    "",
+    "// ==================== Role Tokens ===================="
+  ];
+
+  appendScssMap(lines, "$palette-roles", (indent) => {
+    ["light", "dark"].forEach((mode) => {
+      lines.push(`${indent}${mode}: (`);
+      tokenSets[mode].roles.forEach((role) => lines.push(`${indent}  ${role.name}: ${role.hex},`));
+      lines.push(`${indent}),`);
+    });
+  });
+
+  lines.push("", "// ==================== Spectrum Tokens ====================");
+  appendScssMap(lines, "$palette-spectrum", (indent) => {
+    ["light", "dark"].forEach((mode) => {
+      lines.push(`${indent}${mode}: (`);
+      tokenSets[mode].spectrum.forEach((scale) => {
+        lines.push(`${indent}  ${scale.name}: (`);
+        scale.tokens.forEach((token) => lines.push(`${indent}    ${token.stop}: ${token.hex},`));
+        lines.push(`${indent}  ),`);
+      });
+      lines.push(`${indent}),`);
+    });
+  });
+
+  lines.push("", "// ==================== Semantic Surface Tokens ====================");
+  appendScssMap(lines, "$palette-semantic", (indent) => {
+    ["light", "dark"].forEach((mode) => {
+      const theme = themeTokens[mode];
+      lines.push(`${indent}${mode}: (`);
+      lines.push(`${indent}  background: ${theme.background},`);
+      lines.push(`${indent}  surface: ${theme.surface},`);
+      lines.push(`${indent}  surface-raised: ${theme.surfaceRaised},`);
+      lines.push(`${indent}  border: ${theme.border},`);
+      lines.push(`${indent}  text: ${theme.text},`);
+      lines.push(`${indent}  muted: ${theme.muted},`);
+      lines.push(`${indent}  code-bg: ${theme.codeBg},`);
+      lines.push(`${indent}  code-text: ${theme.codeText},`);
+      lines.push(`${indent}),`);
+    });
+  });
+
+  lines.push("", "// ==================== Complete Palette ====================");
+  appendScssMap(lines, "$palette", (indent) => {
+    lines.push(`${indent}roles: $palette-roles,`);
+    lines.push(`${indent}spectrum: $palette-spectrum,`);
+    lines.push(`${indent}semantic: $palette-semantic,`);
+  });
+
+  lines.push(
+    "",
+    "// ==================== Helpers ====================",
+    "@function palette-role($name, $mode: light) {",
+    "  @return map-get(map-get($palette-roles, $mode), $name);",
+    "}",
+    "",
+    "@function palette-spectrum($scale, $stop, $mode: light) {",
+    "  @return map-get(map-get(map-get($palette-spectrum, $mode), $scale), $stop);",
+    "}",
+    "",
+    "@function palette-semantic($name, $mode: light) {",
+    "  @return map-get(map-get($palette-semantic, $mode), $name);",
+    "}",
+    "",
+    "// ==================== CSS Custom Property Output ====================",
+    "@mixin palette-css-vars($mode: light) {",
+    "  color-scheme: if($mode == dark, dark, light);",
+    "",
+    "  @each $name, $value in map-get($palette-roles, $mode) {",
+    "    --#{$name}: #{$value};",
+    "  }",
+    "",
+    "  @each $scale, $tokens in map-get($palette-spectrum, $mode) {",
+    "    @each $stop, $value in $tokens {",
+    "      --#{$scale}-#{$stop}: #{$value};",
+    "    }",
+    "  }",
+    "",
+    "  --color-primary: var(--primary);",
+    "  --color-primary-hover: var(--primary);",
+    "  --color-secondary: var(--secondary);",
+    "  --color-accent: var(--accent);",
+    "  --color-note: var(--note);",
+    "  --color-info: var(--info);",
+    "  --color-success: var(--success);",
+    "  --color-warning: var(--warning);",
+    "  --color-error: var(--error);"
+  );
+  spectrumScales.forEach((scale) => lines.push(`  --color-${scale.name}: var(--${scale.name}-500);`));
+  lines.push(
+    "",
+    "  @each $name, $value in map-get($palette-semantic, $mode) {",
+    "    --color-#{$name}: #{$value};",
+    "  }",
+    "}",
+    "",
+    ":root {",
+    "  @include palette-css-vars(light);",
+    "}",
+    "",
+    ".dark {",
+    "  @include palette-css-vars(dark);",
+    "}"
+  );
+
+  return lines.join("\n");
+}
+
 function buildTailwind(tokenSets) {
   const lines = [
     "// Use Tailwind's class dark mode with `darkMode: 'class'` and add class=\"dark\" on a parent.",
@@ -552,6 +670,8 @@ function getCopyValue(target, type) {
   if (type === "token") return target.token;
   if (type === "hex") return target.hex;
   if (type === "var") return `var(--${target.token})`;
+  if (type === "scss-var") return `$${target.token}`;
+  if (type === "scss-property") return `$${target.token}: ${target.hex};`;
   return `--${target.token}: ${target.hex};`;
 }
 
@@ -649,6 +769,7 @@ function getExportFileMeta(format) {
     js: { filename: "spectrum-tokens.js", type: "text/javascript" },
     figma: { filename: "spectrum-tokens.figma.json", type: "application/json" },
     json: { filename: "spectrum-tokens.tokens.json", type: "application/json" },
+    scss: { filename: "_palette.scss", type: "text/x-scss" },
     tailwind: { filename: "tailwind.palette.config.js", type: "text/javascript" }
   };
   return meta[format] || { filename: "spectrum-tokens.txt", type: "text/plain" };
@@ -677,6 +798,7 @@ function renderExports(tokenSets) {
     js: buildJs(tokenSets),
     figma: buildFigma(tokenSets),
     json: buildJson(tokenSets),
+    scss: buildScss(tokenSets),
     tailwind: buildTailwind(tokenSets)
   };
   const labels = {
@@ -684,6 +806,7 @@ function renderExports(tokenSets) {
     js: "JavaScript output",
     figma: "Figma tokens output",
     json: "Tokens JSON output",
+    scss: "_palette.scss partial output",
     tailwind: "Tailwind config output"
   };
   exportLabel.textContent = labels[state.format];

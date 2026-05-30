@@ -2,6 +2,11 @@
 
 All notable Spectrum Tokens changes are documented here.
 
+## Unreleased
+
+- Added SCSS variable copy options to swatch menus.
+- Added an organized `_palette.scss` export with role, spectrum, semantic, helper, and CSS custom property sections.
+
 ## [1.0.0] - 2026-05-28
 
 - Added PWA manifest, icons, service worker caching, production minified assets, and a Lighthouse-friendly local server.

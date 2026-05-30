@@ -9,8 +9,8 @@ Spectrum Tokens is a standalone design-system color generator from ABLE-UI, LLC.
 - Visible-spectrum primitive rows for yellow, orange, red, magenta, violet, blue, cyan, green, and grey.
 - Semantic role swatches for primary, secondary, accent, note, info, success, warning, and error.
 - Light and dark theme preview with class-based dark-token exports.
-- Copy menus for token names, hex values, CSS variables, and CSS property declarations.
-- Export formats for Global CSS, JavaScript, Figma-compatible JSON, Tokens JSON, and Tailwind config.
+- Copy menus for token names, hex values, CSS variables, CSS property declarations, SCSS variables, and SCSS variable declarations.
+- Export formats for Global CSS, JavaScript, Figma-compatible JSON, Tokens JSON, `_palette.scss`, and Tailwind config.
 - PWA install metadata, generated icons, service worker caching, and an offline app shell.
 
 ## Usage
