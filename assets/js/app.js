@@ -1037,10 +1037,4 @@ copyButton.addEventListener("click", async (event) => {
   }, 1600);
 });
 
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => {
-    navigator.serviceWorker.register("./service-worker.js").catch(() => {});
-  });
-}
-
 render();

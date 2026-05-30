@@ -11,9 +11,9 @@ All notable Spectrum Tokens changes are documented here.
 
 ## [1.0.0] - 2026-05-28
 
-- Added PWA manifest, icons, service worker caching, production minified assets, and a Lighthouse-friendly local server.
+- Added production minified assets and a local static server.
 - Improved accessibility with labeled inputs, visible-name-safe swatches, keyboardable tabs and copy menus, reduced-motion and forced-colors support, and WCAG AA swatch contrast.
-- Added reusable QA and build scripts covering PWA assets, ARIA wiring, no inline CSS, generated exports, responsive CSS, and contrast.
+- Added reusable QA and build scripts covering asset paths, ARIA wiring, no inline CSS, generated exports, responsive CSS, and contrast.
 
 ## [0.6.0] - 2026-05-27
 

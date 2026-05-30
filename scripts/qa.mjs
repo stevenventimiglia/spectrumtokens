@@ -68,7 +68,7 @@ function runAppProbe(extra = "") {
   const tabFormats = ["css", "js", "figma", "json", "scss", "tailwind"];
   const context = {
     console,
-    navigator: { clipboard: { writeText: async () => {} }, serviceWorker: { register: async () => ({}) } },
+    navigator: { clipboard: { writeText: async () => {} } },
     window: { innerWidth: 1200, setTimeout() {}, addEventListener() {} },
     document: {
       activeElement: null,
@@ -109,10 +109,9 @@ function contrast(a, b) {
   return (Math.max(l1, l2) + 0.05) / (Math.min(l1, l2) + 0.05);
 }
 
-check("JavaScript and service worker parse", () => {
+check("JavaScript parses", () => {
   execFileSync("node", ["--check", "assets/js/app.js"], { cwd: new URL(".", root), stdio: "pipe" });
   execFileSync("node", ["--check", "assets/js/app.min.js"], { cwd: new URL(".", root), stdio: "pipe" });
-  execFileSync("node", ["--check", "service-worker.js"], { cwd: new URL(".", root), stdio: "pipe" });
 });
 
 check("HTML asset references resolve from repo root", () => {
@@ -174,17 +173,16 @@ check("Visible button text is included in accessible names", () => {
   assert(html.includes('data-copy="scss-property"'), "Copy menu should include SCSS property copy");
 });
 
-check("PWA manifest, icons, and service worker are present", () => {
-  const manifest = JSON.parse(read("manifest.webmanifest"));
-  assert(manifest.name && manifest.short_name, "Manifest requires name and short_name");
-  assert(manifest.start_url === "./", "Manifest start_url should be local and relative");
-  assert(manifest.display === "standalone", "Manifest should use standalone display");
-  assert(Array.isArray(manifest.icons) && manifest.icons.length >= 2, "Manifest should include install icons");
-  manifest.icons.forEach((icon) => assert(exists(icon.src), `Missing manifest icon: ${icon.src}`));
-  const sw = read("service-worker.js");
-  ["index.html", "assets/css/styles.min.css", "assets/js/app.min.js", "manifest.webmanifest"].forEach((asset) => {
-    assert(sw.includes(asset), `Service worker cache list missing ${asset}`);
-  });
+check("Install metadata and service worker are absent", () => {
+  const html = read("index.html");
+  const js = read("assets/js/app.js");
+  assert(!exists("manifest.webmanifest"), "Manifest should not be present");
+  assert(!exists("service-worker.js"), "Service worker should not be present");
+  assert(!fs.existsSync(new URL("assets/img", root)), "Unused app image assets should not be present");
+  assert(!html.includes("rel=\"manifest\""), "HTML should not link a web manifest");
+  assert(!html.includes("apple-mobile-web-app"), "HTML should not include Apple PWA metadata");
+  assert(!html.includes("theme-color"), "HTML should not include install theme metadata");
+  assert(!js.includes("serviceWorker"), "App should not register a service worker");
 });
 
 check("Responsive CSS and motion preferences are covered", () => {

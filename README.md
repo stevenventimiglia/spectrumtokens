@@ -11,7 +11,6 @@ Spectrum Tokens is a standalone design-system color generator from ABLE-UI, LLC.
 - Light and dark theme preview with class-based dark-token exports.
 - Copy menus for token names, hex values, CSS variables, CSS property declarations, SCSS variables, and SCSS variable declarations.
 - Export formats for Global CSS, JavaScript, Figma-compatible JSON, Tokens JSON, `_palette.scss`, and Tailwind config.
-- PWA install metadata, generated icons, service worker caching, and an offline app shell.
 
 ## Usage
 
@@ -21,7 +20,7 @@ Open [index.html](./index.html) directly in a browser, or run the local static s
 npm start
 ```
 
-The local server builds minified assets first and serves the static app with cache headers suitable for local Lighthouse testing.
+The local server builds minified assets first and serves the static app.
 
 ## Development
 
@@ -37,7 +36,7 @@ Run reusable QA checks:
 npm run qa
 ```
 
-The QA suite checks JavaScript syntax, asset paths, no inline CSS, production minification, ARIA wiring, PWA files, responsive CSS expectations, generated exports, and WCAG AA swatch text contrast.
+The QA suite checks JavaScript syntax, asset paths, no inline CSS, production minification, ARIA wiring, responsive CSS expectations, generated exports, and WCAG AA swatch text contrast.
 
 ## Release
 
