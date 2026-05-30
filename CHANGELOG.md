@@ -6,6 +6,8 @@ All notable Spectrum Tokens changes are documented here.
 
 - Added SCSS variable copy options to swatch menus.
 - Added an organized `_palette.scss` export with role, spectrum, semantic, helper, and CSS custom property sections.
+- Added saved primary-color swatches and renamed the 7-stop scale depth to Web.
+- Mapped the Note role swatch to the generated `purple-300` color.
 
 ## [1.0.0] - 2026-05-28
 

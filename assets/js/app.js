@@ -4,17 +4,18 @@ const state = {
   darkReach: 24,
   depth: 8,
   theme: "light",
-  format: "css"
+  format: "css",
+  savedPrimaries: []
 };
 
 const derivedRoleScales = [
   { name: "primary", hueOffset: 0, saturationOffset: 0 },
   { name: "secondary", hueOffset: 36, saturationOffset: -4 },
-  { name: "accent", hueOffset: -42, saturationOffset: 5 },
-  { name: "note", hueOffset: 18, saturationOffset: -2 }
+  { name: "accent", hueOffset: -42, saturationOffset: 5 }
 ];
 
 const scaleRoleLinks = [
+  { name: "note", scale: "purple", stop: 300 },
   { name: "info", scale: "grey", stop: 300 },
   { name: "success", scale: "green", stop: 300 },
   { name: "warning", scale: "orange", stop: 300 },
@@ -26,7 +27,7 @@ const spectrumScales = [
   { name: "orange", hue: 32 },
   { name: "red", hue: 0 },
   { name: "magenta", hue: 300 },
-  { name: "violet", hue: 258 },
+  { name: "purple", hue: 258 },
   { name: "blue", hue: 230 },
   { name: "cyan", hue: 190 },
   { name: "green", hue: 128 },
@@ -65,6 +66,8 @@ const themeTokens = {
 const picker = document.querySelector("#colorPicker");
 const hexInput = document.querySelector("#hexInput");
 const hexStatus = document.querySelector("#hexStatus");
+const addPrimaryButton = document.querySelector("#addPrimaryButton");
+const savedPrimarySwatches = document.querySelector("#savedPrimarySwatches");
 const lightnessRange = document.querySelector("#lightnessRange");
 const darknessRange = document.querySelector("#darknessRange");
 const lightnessOutput = document.querySelector("#lightnessOutput");
@@ -117,7 +120,8 @@ function clearGeneratedElementRules() {
     selectorText.startsWith('[data-tone-id=') ||
     selectorText.startsWith('[data-role-id=') ||
     selectorText.startsWith('[data-list-id=') ||
-    selectorText.startsWith('[data-swatch-id=')
+    selectorText.startsWith('[data-swatch-id=') ||
+    selectorText.startsWith('[data-saved-primary-id=')
   );
 }
 
@@ -295,6 +299,11 @@ function getFlatSpectrumTokens(data) {
 
 function roleMap(roleData) {
   return Object.fromEntries(roleData.map((role) => [role.name, role.hex]));
+}
+
+function setPrimaryColor(hex) {
+  state.primary = hex;
+  render();
 }
 
 function spectrumMap(spectrumData) {
@@ -763,6 +772,37 @@ function renderSpectrum(spectrumData) {
   });
 }
 
+function renderSavedPrimaries() {
+  savedPrimarySwatches.innerHTML = "";
+  state.savedPrimaries.forEach((hex) => {
+    const item = document.createElement("span");
+    const savedId = nextGeneratedId("saved-primary");
+    item.className = "saved-primary-item";
+    item.dataset.savedPrimaryId = savedId;
+    setDynamicRule(`[data-saved-primary-id="${savedId}"]`, `--saved-primary-color: ${hex}; --saved-primary-ink: ${getReadableInk(hex)};`);
+
+    const swatch = document.createElement("button");
+    swatch.type = "button";
+    swatch.className = "saved-primary-swatch";
+    swatch.setAttribute("aria-label", `Use saved primary color ${hex}`);
+    swatch.addEventListener("click", () => setPrimaryColor(hex));
+
+    const remove = document.createElement("button");
+    remove.type = "button";
+    remove.className = "saved-primary-remove";
+    remove.textContent = "x";
+    remove.setAttribute("aria-label", `Remove saved primary color ${hex}`);
+    remove.addEventListener("click", (event) => {
+      event.stopPropagation();
+      state.savedPrimaries = state.savedPrimaries.filter((savedHex) => savedHex !== hex);
+      render();
+    });
+
+    item.append(swatch, remove);
+    savedPrimarySwatches.append(item);
+  });
+}
+
 function getExportFileMeta(format) {
   const meta = {
     css: { filename: "spectrum-tokens.css", type: "text/css" },
@@ -830,11 +870,11 @@ function updatePreview(roleData, spectrumData) {
     "html[data-generated-preview]",
     [
       `--primary: ${previewPrimary}`,
-      `--primary-soft: ${byName["violet-100"] || previewPrimary}`,
-      `--primary-deep: ${byName["violet-600"] || previewPrimary}`,
+      `--primary-soft: ${byName["purple-100"] || previewPrimary}`,
+      `--primary-deep: ${byName["purple-600"] || previewPrimary}`,
       `--focus: ${previewPrimary}`,
-      `--preview-bg: ${byName["violet-100"] || theme.surfaceRaised}`,
-      `--preview-border: ${byName["violet-200"] || theme.border}`,
+      `--preview-bg: ${byName["purple-100"] || theme.surfaceRaised}`,
+      `--preview-border: ${byName["purple-200"] || theme.border}`,
       `--preview-primary: ${previewPrimary}`,
       `--preview-on-primary: ${getReadableInk(previewPrimary)}`,
       `--preview-text: ${theme.text}`
@@ -875,13 +915,13 @@ function render() {
   renderToneStrip(activeTokens.spectrum);
   renderRoles(activeTokens.roles);
   renderSpectrum(activeTokens.spectrum);
+  renderSavedPrimaries();
   renderExports(tokenSets);
   updatePreview(activeTokens.roles, activeTokens.spectrum);
 }
 
 picker.addEventListener("input", (event) => {
-  state.primary = event.target.value.toUpperCase();
-  render();
+  setPrimaryColor(event.target.value.toUpperCase());
 });
 
 hexInput.addEventListener("input", (event) => {
@@ -891,7 +931,13 @@ hexInput.addEventListener("input", (event) => {
     hexStatus.classList.add("error");
     return;
   }
-  state.primary = normalized;
+  setPrimaryColor(normalized);
+});
+
+addPrimaryButton.addEventListener("click", () => {
+  if (!state.savedPrimaries.includes(state.primary)) {
+    state.savedPrimaries = [...state.savedPrimaries, state.primary];
+  }
   render();
 });
 

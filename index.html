@@ -28,6 +28,8 @@
             <div class="color-input-row">
               <input id="colorPicker" name="colorPicker" type="color" value="#3b82f6" aria-labelledby="primaryColorLabel colorPickerLabel">
               <input id="hexInput" name="hexInput" type="text" value="#3B82F6" inputmode="text" maxlength="7" spellcheck="false" aria-labelledby="primaryColorLabel hexInputLabel" aria-describedby="hexStatus">
+              <button class="add-primary-button" id="addPrimaryButton" type="button" aria-label="Save current primary color">+</button>
+              <div class="saved-primary-swatches" id="savedPrimarySwatches" aria-label="Saved primary colors"></div>
             </div>
             <span class="sr-only" id="colorPickerLabel">color picker</span>
             <span class="sr-only" id="hexInputLabel">hex value</span>
@@ -86,7 +88,7 @@
         <div class="depth-panel">
           <span class="depth-panel-label" id="tokenDepthLabel">Scale depth</span>
           <div class="segmented" id="tokenDepth" role="radiogroup" aria-labelledby="tokenDepthLabel">
-            <label><input type="radio" name="depth" value="7"><span>7</span></label>
+            <label><input type="radio" name="depth" value="7"><span>Web</span></label>
             <label><input type="radio" name="depth" value="8" checked><span>8</span></label>
             <label><input type="radio" name="depth" value="10"><span>10</span></label>
           </div>

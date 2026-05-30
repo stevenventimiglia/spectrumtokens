@@ -161,6 +161,8 @@ check("Labels, tabs, and ARIA references are valid", () => {
   assert(html.includes('role="tabpanel"'), "Export panel needs tabpanel role");
   assert(html.includes('tabindex="0"'), "Export panel should be keyboard focusable");
   assert(html.includes('aria-labelledby="primaryColorLabel hexInputLabel"'), "Hex input needs a programmatic label");
+  assert(html.includes('aria-label="Save current primary color"'), "Primary color save button needs an accessible label");
+  assert(html.includes('<span>Web</span>'), "Seven-stop scale depth should be labeled Web");
 });
 
 check("Visible button text is included in accessible names", () => {
@@ -210,6 +212,16 @@ check("Generated app render and exports are valid", () => {
       tailwindDark: buildTailwind(sets).includes('// ==================== Dark Theme ===================='),
       jsonOk: Boolean(JSON.parse(buildJson(sets)).color.modes.dark),
       figmaOk: Boolean(JSON.parse(buildFigma(sets)).modes.light),
+      noteMatchesPurple300: (() => {
+        const light = sets.light;
+        return roleMap(light.roles).note === findSpectrumToken(light.spectrum, 'purple', 300).hex;
+      })(),
+      savedPrimaryRender: (() => {
+        state.savedPrimaries = ['#123456'];
+        renderSavedPrimaries();
+        return document.querySelector('#savedPrimarySwatches').children.length === 1 &&
+          document.styleSheets[0].cssRules.some((rule) => rule.selectorText.startsWith('[data-saved-primary-id='));
+      })(),
       greyChanges: (() => {
         const before = findSpectrumToken(buildSpectrumData('light'), 'grey', 300).hex;
         state.primary = '#EF4444';
@@ -224,6 +236,8 @@ check("Generated app render and exports are valid", () => {
   assert(payload.swatchRules === 72, `Expected 72 default swatch rules, got ${payload.swatchRules}`);
   assert(payload.cssLight && payload.cssBlue && payload.jsBlue && payload.scssPartial && payload.tailwindDark, "Export comments missing");
   assert(payload.jsonOk && payload.figmaOk, "JSON/Figma exports did not parse");
+  assert(payload.noteMatchesPurple300, "Note role should use the purple 300 token");
+  assert(payload.savedPrimaryRender, "Saved primary swatches should render with dynamic color rules");
   assert(payload.greyChanges, "Grey scale should react to primary color changes");
 });
 
