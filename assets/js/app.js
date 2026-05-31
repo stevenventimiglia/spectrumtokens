@@ -414,16 +414,39 @@ function getPantoneMatches(definitions, hex, limit = definitions.matching.defaul
     .slice(0, limit);
 }
 
+function getPantoneQualityIcon(quality) {
+  if (quality === "Compatible") {
+    return {
+      className: "compatible",
+      label: "Compatible",
+      content: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 16.6 4.9 12.3l1.4-1.4 2.9 2.9 8.5-8.5 1.4 1.4-9.9 9.9Z"/></svg>'
+    };
+  }
+  if (quality === "Close") return { className: "close", label: "Close", text: "!" };
+  return { className: "distant", label: quality, text: "" };
+}
+
+function setPantoneModalOpen(open) {
+  document.body.classList.toggle("modal-open", open);
+}
+
 function renderPantoneResults(matches) {
   pantoneResults.innerHTML = "";
   removeDynamicRules((selectorText) => selectorText.startsWith('[data-pantone-result-id='));
   matches.forEach((match) => {
     const row = document.createElement("article");
     const resultId = nextGeneratedId("pantone-result");
+    const icon = getPantoneQualityIcon(match.quality);
     row.className = "pantone-result";
     row.dataset.pantoneResultId = resultId;
     setDynamicRule(`[data-pantone-result-id="${resultId}"]`, `--pantone-result-color: ${match.hex};`);
+    const previewButton = match.quality === "Compatible"
+      ? `<button class="pantone-preview-button" type="button" data-primary-hex="${match.hex}" aria-label="Use ${match.code} as primary color">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5c5.2 0 8.7 4.2 9.8 5.8a2 2 0 0 1 0 2.4C20.7 14.8 17.2 19 12 19s-8.7-4.2-9.8-5.8a2 2 0 0 1 0-2.4C3.3 9.2 6.8 5 12 5Zm0 2C7.7 7 4.8 10.4 3.9 12c.9 1.6 3.8 5 8.1 5s7.2-3.4 8.1-5C19.2 10.4 16.3 7 12 7Zm0 2.2A2.8 2.8 0 1 1 12 14.8 2.8 2.8 0 0 1 12 9.2Zm0 2A.8.8 0 1 0 12 12.8.8.8 0 0 0 12 11.2Z"/></svg>
+        </button>`
+      : "";
     row.innerHTML = `
+      <span class="pantone-quality-icon ${icon.className}" aria-label="${icon.label}">${icon.content || icon.text}</span>
       <span class="pantone-result-swatch" aria-hidden="true"></span>
       <div>
         <h3>${match.code}</h3>
@@ -432,6 +455,7 @@ function renderPantoneResults(matches) {
       <div class="pantone-score">
         <strong>${match.quality}</strong>
         <span>Delta E ${match.deltaE.toFixed(2)}</span>
+        ${previewButton}
       </div>
     `;
     pantoneResults.append(row);
@@ -445,6 +469,7 @@ async function openPantoneModal(hex) {
   setDynamicRule("#pantoneTargetSwatch", `--pantone-target-color: ${normalized};`);
   pantoneResults.innerHTML = "";
   pantoneMatchStatus.textContent = "Loading Pantone definitions";
+  setPantoneModalOpen(true);
   pantoneModal.showModal();
   try {
     const definitions = await loadPantoneDefinitions();
@@ -1124,6 +1149,24 @@ copyMenu.addEventListener("click", (event) => {
   copyText(getCopyValue(activeCopyTarget, button.dataset.copy), event);
   closeCopyMenu();
 });
+
+pantoneResults.addEventListener("click", (event) => {
+  const button = event.target.closest("button[data-primary-hex]");
+  if (!button) return;
+  setPrimaryColor(button.dataset.primaryHex);
+  pantoneModal.close();
+});
+
+pantoneModal.addEventListener("click", (event) => {
+  const rect = pantoneModal.getBoundingClientRect();
+  const isOutside = event.clientX < rect.left ||
+    event.clientX > rect.right ||
+    event.clientY < rect.top ||
+    event.clientY > rect.bottom;
+  if (isOutside) pantoneModal.close();
+});
+
+pantoneModal.addEventListener("close", () => setPantoneModalOpen(false));
 
 document.addEventListener("click", (event) => {
   if (!copyMenu.hidden && !copyMenu.contains(event.target)) closeCopyMenu();

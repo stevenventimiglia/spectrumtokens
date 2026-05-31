@@ -243,6 +243,7 @@ check("Pantone definitions and matcher hooks are valid", () => {
   const data = JSON.parse(read("data/pantone-definitions.json"));
   const js = read("assets/js/app.js");
   const html = read("index.html");
+  const css = read("assets/css/styles.css");
   assert(data.schema === "spectrum-pantone-definitions/v1", "Pantone definitions schema mismatch");
   assert(data.matching.algorithm === "ciede2000", "Pantone matcher should use CIEDE2000");
   assert(data.colors.length >= 3200, "Pantone definitions should include the pantoner reference set");
@@ -257,6 +258,11 @@ check("Pantone definitions and matcher hooks are valid", () => {
   assert(html.includes('data-copy="pantone"'), "Swatch copy menu should expose Pantone matching");
   assert(js.includes("function deltaE2000"), "App should include local CIEDE2000 matching");
   assert(js.includes("data/pantone-definitions.json"), "App should load local Pantone definitions");
+  assert(js.includes("getPantoneQualityIcon"), "Pantone matches should render quality icons");
+  assert(js.includes("data-primary-hex"), "Compatible Pantone matches should expose a primary-color action");
+  assert(js.includes("event.clientX < rect.left"), "Pantone modal should close on outside click");
+  assert(css.includes("body.modal-open"), "Pantone modal should lock body scrolling");
+  assert(css.includes("overscroll-behavior: contain"), "Pantone modal result scrolling should be contained");
 });
 
 check("Generated swatch text contrast meets WCAG AA", () => {

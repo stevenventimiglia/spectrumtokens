@@ -306,6 +306,10 @@ textarea:focus-visible {
   outline-offset: 3px;
 }
 
+body.modal-open {
+  overflow: hidden;
+}
+
 
 .theme-toggle {
   display: flex;
@@ -772,6 +776,7 @@ textarea:focus-visible {
 }
 
 .pantone-modal {
+  overflow: hidden;
   width: min(720px, calc(100vw - 32px));
   max-height: min(760px, calc(100vh - 32px));
   padding: 0;
@@ -842,13 +847,14 @@ textarea:focus-visible {
 
 .pantone-results {
   display: grid;
-  max-height: 480px;
+  max-height: min(480px, calc(100vh - 280px));
   overflow: auto;
+  overscroll-behavior: contain;
 }
 
 .pantone-result {
   display: grid;
-  grid-template-columns: 48px minmax(0, 1fr) auto;
+  grid-template-columns: 24px 48px minmax(0, 1fr) auto;
   gap: 14px;
   align-items: center;
   border-bottom: 1px solid var(--border);
@@ -864,6 +870,36 @@ textarea:focus-visible {
   background: var(--pantone-result-color);
   border: 1px solid color-mix(in srgb, var(--neutral-900), transparent 82%);
   border-radius: 8px;
+}
+
+.pantone-quality-icon {
+  display: grid;
+  width: 22px;
+  height: 22px;
+  place-items: center;
+  color: transparent;
+  font-size: 0.78rem;
+  font-weight: 900;
+  line-height: 1;
+  border-radius: 50%;
+}
+
+.pantone-quality-icon.compatible {
+  color: #064E3B;
+  background: #B7F7D1;
+  border: 1px solid #00A651;
+}
+
+.pantone-quality-icon.close {
+  color: #7C2D12;
+  background: #FED7AA;
+  border: 1px solid #F97316;
+}
+
+.pantone-quality-icon svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
 }
 
 .pantone-result h3 {
@@ -888,6 +924,25 @@ textarea:focus-visible {
 .pantone-score strong {
   font-family: var(--font-sans);
   font-size: 0.76rem;
+}
+
+.pantone-preview-button {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  margin-top: 4px;
+  padding: 0;
+  place-items: center;
+  color: var(--neutral-800);
+  background: var(--neutral-50);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.pantone-preview-button svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
 }
 
 
