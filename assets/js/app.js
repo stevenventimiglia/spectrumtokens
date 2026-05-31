@@ -2,7 +2,7 @@ const state = {
   primary: "#3B82F6",
   lightReach: 96,
   darkReach: 24,
-  depth: 8,
+  depth: 7,
   theme: "light",
   format: "css",
   savedPrimaries: []
@@ -96,6 +96,29 @@ let activeCopyTarget = null;
 let activeCopyAnchor = null;
 let pantoneDefinitionsPromise = null;
 let generatedId = 0;
+
+function retireLegacyServiceWorkers() {
+  if (!("serviceWorker" in navigator)) return;
+
+  window.addEventListener("load", async () => {
+    try {
+      const registrations = await navigator.serviceWorker.getRegistrations();
+      await Promise.all(registrations.map((registration) => registration.unregister()));
+
+      if ("caches" in window) {
+        const cacheNames = await window.caches.keys();
+        await Promise.all(cacheNames.map((cacheName) => window.caches.delete(cacheName)));
+      }
+
+      if (navigator.serviceWorker.controller && !window.sessionStorage.getItem("legacy-service-worker-retired")) {
+        window.sessionStorage.setItem("legacy-service-worker-retired", "true");
+        window.location.reload();
+      }
+    } catch {
+      // Legacy PWA cleanup should never block the color tool.
+    }
+  }, { once: true });
+}
 
 function nextGeneratedId(prefix) {
   generatedId += 1;
@@ -426,11 +449,21 @@ function getPantoneQualityIcon(quality) {
     return {
       className: "close",
       label: "Close",
-      content: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 16.6 4.9 12.3l1.4-1.4 2.9 2.9 8.5-8.5 1.4 1.4-9.9 9.9Z"/></svg>'
+      content: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.6 17.8 4.2 12.4l2.5-2.5 2.9 2.9 7.7-7.7 2.5 2.5-10.2 10.2Z"/></svg>'
     };
   }
-  if (quality === "Compatible") return { className: "compatible", label: "Compatible", text: "!" };
-  return { className: "distant", label: quality, text: "!" };
+  if (quality === "Compatible") {
+    return {
+      className: "compatible",
+      label: "Compatible",
+      content: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10.2 3.2h3.6l-.5 12.1h-2.6L10.2 3.2Zm-.1 15.6a1.9 1.9 0 1 1 3.8 0 1.9 1.9 0 0 1-3.8 0Z"/></svg>'
+    };
+  }
+  return {
+    className: "distant",
+    label: quality,
+    content: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m7.1 4.8 4.9 4.9 4.9-4.9 2.3 2.3-4.9 4.9 4.9 4.9-2.3 2.3-4.9-4.9-4.9 4.9-2.3-2.3 4.9-4.9-4.9-4.9 2.3-2.3Z"/></svg>'
+  };
 }
 
 function setPantoneModalOpen(open) {
@@ -1246,3 +1279,4 @@ copyButton.addEventListener("click", async (event) => {
 });
 
 render();
+retireLegacyServiceWorkers();

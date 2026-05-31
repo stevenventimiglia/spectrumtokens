@@ -77,7 +77,7 @@ function runAppProbe(extra = "") {
       querySelector: (selector) => get(selector),
       querySelectorAll: (selector) => selector === ".tab-button"
         ? tabFormats.map((format, index) => ({ ...makeElement(), id: `tab-${format}`, dataset: { format }, attributes: { "aria-selected": index === 0 ? "true" : "false" } }))
-        : [7, 8, 10].map((depth) => ({ ...makeElement(), value: String(depth), checked: depth === 8 })),
+        : [7, 8, 10].map((depth) => ({ ...makeElement(), value: String(depth), checked: depth === 7 })),
       createElement: () => makeElement(),
       execCommand: () => true,
       addEventListener() {},
@@ -112,6 +112,7 @@ function contrast(a, b) {
 check("JavaScript parses", () => {
   execFileSync("node", ["--check", "assets/js/app.js"], { cwd: new URL(".", root), stdio: "pipe" });
   execFileSync("node", ["--check", "assets/js/app.min.js"], { cwd: new URL(".", root), stdio: "pipe" });
+  execFileSync("node", ["--check", "service-worker.js"], { cwd: new URL(".", root), stdio: "pipe" });
 });
 
 check("HTML asset references resolve from repo root", () => {
@@ -161,7 +162,10 @@ check("Labels, tabs, and ARIA references are valid", () => {
   assert(html.includes('tabindex="0"'), "Export panel should be keyboard focusable");
   assert(html.includes('aria-labelledby="primaryColorLabel hexInputLabel"'), "Hex input needs a programmatic label");
   assert(html.includes('aria-label="Save current primary color"'), "Primary color save button needs an accessible label");
+  assert(html.includes(">Color Match</button>"), "Primary color match action should use the full Color Match label");
   assert(html.includes('<span>Web</span>'), "Seven-stop scale depth should be labeled Web");
+  assert(html.includes('name="depth" value="7" checked'), "Web scale depth should be selected by default");
+  assert(html.includes('class="modal-close"') && html.includes('aria-label="Close Pantone match"') && html.includes("<svg"), "Pantone modal close button should use an accessible icon");
 });
 
 check("Visible button text is included in accessible names", () => {
@@ -173,16 +177,22 @@ check("Visible button text is included in accessible names", () => {
   assert(html.includes('data-copy="scss-property"'), "Copy menu should include SCSS property copy");
 });
 
-check("Install metadata and service worker are absent", () => {
+check("Install metadata is absent and legacy workers retire", () => {
   const html = read("index.html");
   const js = read("assets/js/app.js");
+  const worker = read("service-worker.js");
+  const server = read("scripts/serve.mjs");
   assert(!exists("manifest.webmanifest"), "Manifest should not be present");
-  assert(!exists("service-worker.js"), "Service worker should not be present");
   assert(!fs.existsSync(new URL("assets/img", root)), "Unused app image assets should not be present");
   assert(!html.includes("rel=\"manifest\""), "HTML should not link a web manifest");
   assert(!html.includes("apple-mobile-web-app"), "HTML should not include Apple PWA metadata");
   assert(!html.includes("theme-color"), "HTML should not include install theme metadata");
-  assert(!js.includes("serviceWorker"), "App should not register a service worker");
+  assert(!js.includes(".register("), "App should not register a service worker");
+  assert(js.includes("retireLegacyServiceWorkers"), "App should unregister previous service workers");
+  assert(worker.includes("self.registration.unregister()"), "Service worker should unregister itself");
+  assert(worker.includes("caches.delete"), "Service worker should clear legacy caches");
+  assert(server.includes('pathname === "/service-worker.js"') && server.includes('"no-store"'), "Service worker response should not be cached");
+  assert(!server.includes("immutable"), "Static server should not serve same-name assets as immutable");
 });
 
 check("Responsive CSS and motion preferences are covered", () => {
@@ -231,7 +241,7 @@ check("Generated app render and exports are valid", () => {
   `);
   const payload = probe.context.__payload;
   assert(payload.toneRules === 8, `Expected 8 tone-strip rules, got ${payload.toneRules}`);
-  assert(payload.swatchRules === 72, `Expected 72 default swatch rules, got ${payload.swatchRules}`);
+  assert(payload.swatchRules === 63, `Expected 63 default Web swatch rules, got ${payload.swatchRules}`);
   assert(payload.cssLight && payload.cssBlue && payload.jsBlue && payload.scssPartial && payload.tailwindDark, "Export comments missing");
   assert(payload.jsonOk && payload.figmaOk, "JSON/Figma exports did not parse");
   assert(payload.noteMatchesPurple300, "Note role should use the purple 300 token");
@@ -261,7 +271,12 @@ check("Pantone definitions and matcher hooks are valid", () => {
   assert(js.includes("getPantoneQualityIcon"), "Pantone matches should render quality icons");
   assert(js.includes('["Excellent", "Close"].includes(match.quality)'), "Excellent and close Pantone matches should expose a primary-color action");
   assert(css.includes(".pantone-quality-icon.excellent"), "Excellent Pantone matches should have a star status style");
+  assert(css.includes("background: #FACC15") && css.includes("color: #FEF9C3"), "Excellent Pantone icon should use a filled yellow 400 treatment");
+  assert(js.includes("M9.6 17.8 4.2 12.4"), "Close Pantone icon should use the bolder check symbol");
+  assert(js.includes("m7.1 4.8 4.9 4.9"), "Distant Pantone icon should use a chunky X symbol");
   assert(css.includes(".pantone-quality-icon.distant"), "Distant Pantone matches should have an error status style");
+  assert(css.includes("--pantone-modal-surface: #ffffff"), "Pantone modal should remain light in every theme");
+  assert(css.includes("box-shadow: 0 0 86px 22px"), "Pantone modal shadow should be centered behind the dialog");
   assert(js.includes("event.clientX < rect.left"), "Pantone modal should close on outside click");
   assert(css.includes("body.modal-open"), "Pantone modal should lock body scrolling");
   assert(css.includes("overscroll-behavior: contain"), "Pantone modal result scrolling should be contained");

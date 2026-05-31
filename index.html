@@ -22,7 +22,7 @@
               <input id="colorPicker" name="colorPicker" type="color" value="#3b82f6" aria-labelledby="primaryColorLabel colorPickerLabel">
               <input id="hexInput" name="hexInput" type="text" value="#3B82F6" inputmode="text" maxlength="7" spellcheck="false" aria-labelledby="primaryColorLabel hexInputLabel" aria-describedby="hexStatus">
               <button class="add-primary-button" id="addPrimaryButton" type="button" aria-label="Save current primary color">+</button>
-              <button class="pantone-primary-button" id="pantonePrimaryButton" type="button">Match</button>
+              <button class="pantone-primary-button" id="pantonePrimaryButton" type="button">Color Match</button>
               <div class="saved-primary-swatches" id="savedPrimarySwatches" aria-label="Saved primary colors"></div>
             </div>
             <span class="sr-only" id="colorPickerLabel">color picker</span>
@@ -82,8 +82,8 @@
         <div class="depth-panel">
           <span class="depth-panel-label" id="tokenDepthLabel">Scale depth</span>
           <div class="segmented" id="tokenDepth" role="radiogroup" aria-labelledby="tokenDepthLabel">
-            <label><input type="radio" name="depth" value="7"><span>Web</span></label>
-            <label><input type="radio" name="depth" value="8" checked><span>8</span></label>
+            <label><input type="radio" name="depth" value="7" checked><span>Web</span></label>
+            <label><input type="radio" name="depth" value="8"><span>8</span></label>
             <label><input type="radio" name="depth" value="10"><span>10</span></label>
           </div>
         </div>
@@ -139,7 +139,9 @@
           <h2 id="pantoneModalTitle">Pantone Match</h2>
         </div>
         <form method="dialog">
-          <button class="modal-close" type="submit" aria-label="Close Pantone match">x</button>
+          <button class="modal-close" type="submit" aria-label="Close Pantone match">
+            <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.7 5.3 12 10.6l5.3-5.3 1.4 1.4-5.3 5.3 5.3 5.3-1.4 1.4-5.3-5.3-5.3 5.3-1.4-1.4 5.3-5.3-5.3-5.3 1.4-1.4Z"/></svg>
+          </button>
         </form>
       </div>
       <div class="pantone-target">

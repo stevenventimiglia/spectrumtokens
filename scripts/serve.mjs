@@ -35,8 +35,9 @@ const server = http.createServer((req, res) => {
     return;
   }
 
-  const immutable = /\.(?:css|js|svg|png)$/.test(file);
-  const cacheControl = immutable ? "public, max-age=31536000, immutable" : "no-cache";
+  const cacheControl = pathname === "/service-worker.js"
+    ? "no-store"
+    : "no-cache";
   send(res, 200, file, { "Cache-Control": cacheControl });
 });
 

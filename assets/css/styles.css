@@ -188,7 +188,7 @@ output {
 
 .color-input-row {
   display: grid;
-  grid-template-columns: 54px minmax(0, 1fr) 48px 70px;
+  grid-template-columns: 54px minmax(0, 1fr) 48px 104px;
   gap: 12px;
   align-items: center;
 }
@@ -232,7 +232,7 @@ input[type="text"] {
 
 .pantone-primary-button {
   display: grid;
-  width: 70px;
+  width: 104px;
   height: 48px;
   place-items: center;
   color: var(--neutral-800);
@@ -245,22 +245,25 @@ input[type="text"] {
 }
 
 .saved-primary-swatches {
+  grid-column: 1 / -1;
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
-  min-height: 28px;
+  gap: 12px;
+  align-items: center;
+  min-height: 40px;
+  padding-top: 2px;
 }
 
 .saved-primary-item {
   position: relative;
   display: inline-grid;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
 }
 
 .saved-primary-swatch {
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   background: var(--saved-primary-color);
   border: 1px solid color-mix(in srgb, var(--saved-primary-ink), transparent 72%);
   border-radius: 6px;
@@ -269,8 +272,8 @@ input[type="text"] {
 
 .saved-primary-remove {
   position: absolute;
-  top: -7px;
-  right: -7px;
+  top: -8px;
+  right: -8px;
   display: grid;
   width: 18px;
   height: 18px;
@@ -776,15 +779,21 @@ body.modal-open {
 }
 
 .pantone-modal {
+  --pantone-modal-surface: #ffffff;
+  --pantone-modal-raised: #f8fafc;
+  --pantone-modal-text: #111827;
+  --pantone-modal-strong: #1d2733;
+  --pantone-modal-muted: #66758a;
+  --pantone-modal-border: #dbe3ee;
   overflow: hidden;
   width: min(720px, calc(100vw - 32px));
   max-height: min(760px, calc(100vh - 32px));
   padding: 0;
-  color: var(--neutral-900);
-  background: var(--surface);
-  border: 1px solid var(--border);
+  color: var(--pantone-modal-text);
+  background: var(--pantone-modal-surface);
+  border: 1px solid var(--pantone-modal-border);
   border-radius: 8px;
-  box-shadow: 0 28px 90px rgba(17, 24, 39, 0.28);
+  box-shadow: 0 0 86px 22px rgba(17, 24, 39, 0.38);
 }
 
 .pantone-modal::backdrop {
@@ -802,7 +811,7 @@ body.modal-open {
   align-items: start;
   justify-content: space-between;
   gap: 18px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--pantone-modal-border);
 }
 
 .pantone-modal-header h2 {
@@ -813,23 +822,36 @@ body.modal-open {
 
 .modal-close {
   display: grid;
-  width: 34px;
-  height: 34px;
+  width: 36px;
+  height: 36px;
   padding: 0;
   place-items: center;
-  color: var(--neutral-800);
-  font-size: 0.9rem;
-  font-weight: 900;
-  background: var(--neutral-50);
-  border: 1px solid var(--border);
+  color: var(--pantone-modal-strong);
+  background: var(--pantone-modal-raised);
+  border: 1px solid var(--pantone-modal-border);
   border-radius: 50%;
+  box-shadow: 0 1px 4px rgba(17, 24, 39, 0.08);
+  transition: background-color 120ms ease, border-color 120ms ease, color 120ms ease, transform 120ms ease;
+}
+
+.modal-close:hover {
+  color: var(--danger);
+  background: color-mix(in srgb, var(--danger), var(--pantone-modal-surface) 92%);
+  border-color: color-mix(in srgb, var(--danger), var(--pantone-modal-border) 54%);
+  transform: translateY(-1px);
+}
+
+.modal-close svg {
+  width: 18px;
+  height: 18px;
+  fill: currentColor;
 }
 
 .pantone-target {
   display: flex;
   align-items: center;
   gap: 14px;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--pantone-modal-border);
 }
 
 #pantoneTargetSwatch {
@@ -837,7 +859,7 @@ body.modal-open {
   height: 54px;
   flex: 0 0 auto;
   background: var(--pantone-target-color, #3b82f6);
-  border: 1px solid var(--border);
+  border: 1px solid var(--pantone-modal-border);
   border-radius: 8px;
 }
 
@@ -857,7 +879,7 @@ body.modal-open {
   grid-template-columns: 24px 48px minmax(0, 1fr) auto;
   gap: 14px;
   align-items: center;
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--pantone-modal-border);
 }
 
 .pantone-result:last-child {
@@ -885,32 +907,28 @@ body.modal-open {
 }
 
 .pantone-quality-icon.excellent {
-  color: #7C4A03;
-  background: #FEF3C7;
-  border: 1px solid #D97706;
+  color: #FEF9C3;
+  background: #FACC15;
 }
 
 .pantone-quality-icon.close {
-  color: #064E3B;
-  background: #B7F7D1;
-  border: 1px solid #00A651;
+  color: #DCFCE7;
+  background: #4ADE80;
 }
 
 .pantone-quality-icon.compatible {
-  color: #7C2D12;
-  background: #FED7AA;
-  border: 1px solid #F97316;
+  color: #FFEDD5;
+  background: #FB923C;
 }
 
 .pantone-quality-icon.distant {
-  color: #7F1D1D;
-  background: #FEE2E2;
-  border: 1px solid #DC2626;
+  color: #FEE2E2;
+  background: #F87171;
 }
 
 .pantone-quality-icon svg {
-  width: 14px;
-  height: 14px;
+  width: 15px;
+  height: 15px;
   fill: currentColor;
 }
 
@@ -921,7 +939,7 @@ body.modal-open {
 
 .pantone-result p {
   margin: 0;
-  color: var(--muted);
+  color: var(--pantone-modal-muted);
   font-size: 0.84rem;
 }
 
@@ -952,10 +970,14 @@ body.modal-open {
   height: 32px;
   padding: 0;
   place-items: center;
-  color: var(--neutral-800);
-  background: var(--neutral-50);
-  border: 1px solid var(--border);
+  color: var(--pantone-modal-strong);
+  background: var(--pantone-modal-raised);
+  border: 1px solid var(--pantone-modal-border);
   border-radius: 8px;
+}
+
+.pantone-preview-button:hover {
+  background: #eef2f7;
 }
 
 .pantone-preview-button svg {
@@ -1024,11 +1046,17 @@ textarea {
   }
 
   .color-input-row {
-    grid-template-columns: 64px minmax(0, 1fr) 48px 70px minmax(88px, auto);
+    grid-template-columns: 64px minmax(0, 1fr) 48px 104px minmax(116px, auto);
   }
 
   input[type="color"] {
     width: 64px;
+  }
+
+  .saved-primary-swatches {
+    grid-column: auto;
+    min-height: 32px;
+    padding-top: 0;
   }
 
   .role-strip {
