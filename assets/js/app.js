@@ -415,15 +415,22 @@ function getPantoneMatches(definitions, hex, limit = definitions.matching.defaul
 }
 
 function getPantoneQualityIcon(quality) {
-  if (quality === "Compatible") {
+  if (quality === "Excellent") {
     return {
-      className: "compatible",
-      label: "Compatible",
+      className: "excellent",
+      label: "Excellent",
+      content: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m12 2.6 2.8 5.8 6.4.9-4.6 4.5 1.1 6.3-5.7-3-5.7 3 1.1-6.3-4.6-4.5 6.4-.9L12 2.6Z"/></svg>'
+    };
+  }
+  if (quality === "Close") {
+    return {
+      className: "close",
+      label: "Close",
       content: '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9.2 16.6 4.9 12.3l1.4-1.4 2.9 2.9 8.5-8.5 1.4 1.4-9.9 9.9Z"/></svg>'
     };
   }
-  if (quality === "Close") return { className: "close", label: "Close", text: "!" };
-  return { className: "distant", label: quality, text: "" };
+  if (quality === "Compatible") return { className: "compatible", label: "Compatible", text: "!" };
+  return { className: "distant", label: quality, text: "!" };
 }
 
 function setPantoneModalOpen(open) {
@@ -440,7 +447,7 @@ function renderPantoneResults(matches) {
     row.className = "pantone-result";
     row.dataset.pantoneResultId = resultId;
     setDynamicRule(`[data-pantone-result-id="${resultId}"]`, `--pantone-result-color: ${match.hex};`);
-    const previewButton = match.quality === "Compatible"
+    const previewButton = ["Excellent", "Close"].includes(match.quality)
       ? `<button class="pantone-preview-button" type="button" data-primary-hex="${match.hex}" aria-label="Use ${match.code} as primary color">
           <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5c5.2 0 8.7 4.2 9.8 5.8a2 2 0 0 1 0 2.4C20.7 14.8 17.2 19 12 19s-8.7-4.2-9.8-5.8a2 2 0 0 1 0-2.4C3.3 9.2 6.8 5 12 5Zm0 2C7.7 7 4.8 10.4 3.9 12c.9 1.6 3.8 5 8.1 5s7.2-3.4 8.1-5C19.2 10.4 16.3 7 12 7Zm0 2.2A2.8 2.8 0 1 1 12 14.8 2.8 2.8 0 0 1 12 9.2Zm0 2A.8.8 0 1 0 12 12.8.8.8 0 0 0 12 11.2Z"/></svg>
         </button>`
@@ -452,10 +459,12 @@ function renderPantoneResults(matches) {
         <h3>${match.code}</h3>
         <p>${match.library.label} - ${match.hex}</p>
       </div>
-      <div class="pantone-score">
-        <strong>${match.quality}</strong>
-        <span>Delta E ${match.deltaE.toFixed(2)}</span>
+      <div class="pantone-actions">
         ${previewButton}
+        <div class="pantone-score">
+          <strong>${match.quality}</strong>
+          <span>Delta E ${match.deltaE.toFixed(2)}</span>
+        </div>
       </div>
     `;
     pantoneResults.append(row);

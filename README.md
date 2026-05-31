@@ -11,7 +11,7 @@ Spectrum Tokens is a standalone design-system color generator from ABLE-UI, LLC.
 - Light and dark theme preview with class-based dark-token exports.
 - Copy menus for token names, hex values, CSS variables, CSS property declarations, SCSS variables, and SCSS variable declarations.
 - Export formats for Global CSS, JavaScript, Figma-compatible JSON, Tokens JSON, `_palette.scss`, and Tailwind config.
-- Pantone match modal backed by local definitions and CIEDE2000 color-distance ranking, with quality indicators and compatible-match preview actions.
+- Pantone match modal backed by local definitions and CIEDE2000 color-distance ranking, with quality indicators and excellent/close preview actions.
 
 ## Usage
 

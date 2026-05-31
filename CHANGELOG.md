@@ -4,7 +4,7 @@ All notable Spectrum Tokens changes are documented here.
 
 ## Unreleased
 
-- Added a Pantone match modal backed by normalized local Pantone definitions and CIEDE2000 ranking, with quality indicators and compatible-match preview actions.
+- Added a Pantone match modal backed by normalized local Pantone definitions and CIEDE2000 ranking, with quality indicators and excellent/close preview actions.
 - Added SCSS variable copy options to swatch menus.
 - Added an organized `_palette.scss` export with role, spectrum, semantic, helper, and CSS custom property sections.
 - Added saved primary-color swatches and renamed the 7-stop scale depth to Web.

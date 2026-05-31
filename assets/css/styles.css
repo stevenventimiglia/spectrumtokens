@@ -884,16 +884,28 @@ body.modal-open {
   border-radius: 50%;
 }
 
-.pantone-quality-icon.compatible {
+.pantone-quality-icon.excellent {
+  color: #7C4A03;
+  background: #FEF3C7;
+  border: 1px solid #D97706;
+}
+
+.pantone-quality-icon.close {
   color: #064E3B;
   background: #B7F7D1;
   border: 1px solid #00A651;
 }
 
-.pantone-quality-icon.close {
+.pantone-quality-icon.compatible {
   color: #7C2D12;
   background: #FED7AA;
   border: 1px solid #F97316;
+}
+
+.pantone-quality-icon.distant {
+  color: #7F1D1D;
+  background: #FEE2E2;
+  border: 1px solid #DC2626;
 }
 
 .pantone-quality-icon svg {
@@ -913,8 +925,16 @@ body.modal-open {
   font-size: 0.84rem;
 }
 
+.pantone-actions {
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  gap: 10px;
+}
+
 .pantone-score {
   display: grid;
+  min-width: 92px;
   gap: 4px;
   justify-items: end;
   font-family: var(--font-mono);
@@ -930,7 +950,6 @@ body.modal-open {
   display: grid;
   width: 32px;
   height: 32px;
-  margin-top: 4px;
   padding: 0;
   place-items: center;
   color: var(--neutral-800);

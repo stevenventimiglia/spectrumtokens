@@ -259,7 +259,9 @@ check("Pantone definitions and matcher hooks are valid", () => {
   assert(js.includes("function deltaE2000"), "App should include local CIEDE2000 matching");
   assert(js.includes("data/pantone-definitions.json"), "App should load local Pantone definitions");
   assert(js.includes("getPantoneQualityIcon"), "Pantone matches should render quality icons");
-  assert(js.includes("data-primary-hex"), "Compatible Pantone matches should expose a primary-color action");
+  assert(js.includes('["Excellent", "Close"].includes(match.quality)'), "Excellent and close Pantone matches should expose a primary-color action");
+  assert(css.includes(".pantone-quality-icon.excellent"), "Excellent Pantone matches should have a star status style");
+  assert(css.includes(".pantone-quality-icon.distant"), "Distant Pantone matches should have an error status style");
   assert(js.includes("event.clientX < rect.left"), "Pantone modal should close on outside click");
   assert(css.includes("body.modal-open"), "Pantone modal should lock body scrolling");
   assert(css.includes("overscroll-behavior: contain"), "Pantone modal result scrolling should be contained");
