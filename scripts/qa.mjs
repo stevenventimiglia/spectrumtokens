@@ -200,6 +200,9 @@ check("Responsive CSS and motion preferences are covered", () => {
   assert(!/@media\s*\(max-width/i.test(css), "CSS should remain progressive-enhancement min-width based");
   assert(!/max-width\s*:/.test(css), "CSS should not rely on max-width constraints");
   assert(css.includes("min-height: 147px"), "Desktop role strip needs reserved height to prevent CLS");
+  assert(css.includes(".saved-primary-swatches {\n  grid-column: 1 / -1;"), "Saved primary swatches should always render on their own row");
+  assert(css.includes("--eyebrow: #1d4ed8") && css.includes("--eyebrow: #93c5fd"), "Heading eyebrows need light and dark theme colors");
+  assert(css.includes(".pantone-modal {\n  --pantone-modal-surface: #ffffff") && css.includes("  --eyebrow: #1d4ed8;"), "Light modal should keep light-theme eyebrow color");
   assert(css.includes("prefers-reduced-motion: reduce"), "CSS missing reduced-motion handling");
   assert(css.includes("forced-colors: active"), "CSS missing forced-colors handling");
 });
@@ -224,6 +227,9 @@ check("Generated app render and exports are valid", () => {
         const light = sets.light;
         return roleMap(light.roles).note === findSpectrumToken(light.spectrum, 'purple', 300).hex;
       })(),
+      secondaryIsComplement: (() => {
+        return derivedRoleScales.find((role) => role.name === 'secondary')?.hueOffset === 180;
+      })(),
       savedPrimaryRender: (() => {
         state.savedPrimaries = ['#123456'];
         renderSavedPrimaries();
@@ -245,6 +251,7 @@ check("Generated app render and exports are valid", () => {
   assert(payload.cssLight && payload.cssBlue && payload.jsBlue && payload.scssPartial && payload.tailwindDark, "Export comments missing");
   assert(payload.jsonOk && payload.figmaOk, "JSON/Figma exports did not parse");
   assert(payload.noteMatchesPurple300, "Note role should use the purple 300 token");
+  assert(payload.secondaryIsComplement, "Secondary role should use the polar opposite primary hue");
   assert(payload.savedPrimaryRender, "Saved primary swatches should render with dynamic color rules");
   assert(payload.greyChanges, "Grey scale should react to primary color changes");
 });

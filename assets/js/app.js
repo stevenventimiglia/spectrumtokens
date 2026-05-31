@@ -10,7 +10,7 @@ const state = {
 
 const derivedRoleScales = [
   { name: "primary", hueOffset: 0, saturationOffset: 0 },
-  { name: "secondary", hueOffset: 36, saturationOffset: -4 },
+  { name: "secondary", hueOffset: 180, saturationOffset: -4 },
   { name: "accent", hueOffset: -42, saturationOffset: 5 }
 ];
 

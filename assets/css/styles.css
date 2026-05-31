@@ -16,6 +16,7 @@
   --border: #dbe3ee;
   --code-bg: #111827;
   --code-text: #dbeafe;
+  --eyebrow: #1d4ed8;
   --focus: #3b82f6;
   --primary: #3b82f6;
   --primary-soft: #dbeafe;
@@ -42,6 +43,7 @@
   --border: #324155;
   --code-bg: #07111f;
   --code-text: #d8e7ff;
+  --eyebrow: #93c5fd;
   color-scheme: dark;
 }
 
@@ -115,7 +117,7 @@ button:disabled {
 .eyebrow,
 .preview-kicker {
   margin: 0 0 10px;
-  color: var(--primary-deep);
+  color: var(--eyebrow);
   font-size: 0.78rem;
   font-weight: 800;
   letter-spacing: 0;
@@ -785,6 +787,7 @@ body.modal-open {
   --pantone-modal-strong: #1d2733;
   --pantone-modal-muted: #66758a;
   --pantone-modal-border: #dbe3ee;
+  --eyebrow: #1d4ed8;
   overflow: hidden;
   width: min(720px, calc(100vw - 32px));
   max-height: min(760px, calc(100vh - 32px));
@@ -1046,7 +1049,7 @@ textarea {
   }
 
   .color-input-row {
-    grid-template-columns: 64px minmax(0, 1fr) 48px 104px minmax(116px, auto);
+    grid-template-columns: 64px minmax(0, 1fr) 48px 104px;
   }
 
   input[type="color"] {
@@ -1054,7 +1057,6 @@ textarea {
   }
 
   .saved-primary-swatches {
-    grid-column: auto;
     min-height: 32px;
     padding-top: 0;
   }
