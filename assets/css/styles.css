@@ -67,6 +67,14 @@ body {
   background: var(--neutral-50);
 }
 
+.typewriter {
+	font-size: clamp(1.8rem, 2.5vw, 2.8rem);
+	font-weight: 500;
+  font-family: "American Typewriter", "Courier New", Courier, serif;
+	margin: 10px 0 5px;
+
+}
+
 button,
 input,
 textarea {
@@ -136,6 +144,29 @@ h1 {
   font-size: 3.2rem;
   line-height: 0.92;
   letter-spacing: 0;
+}
+
+.brand-logo {
+  width: min(620px, 100%);
+  margin: 0 0 18px -5%;
+}
+
+.brand-logo-image {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.brand-logo-dark {
+  display: none;
+}
+
+.dark .brand-logo-light {
+  display: none;
+}
+
+.dark .brand-logo-dark {
+  display: block;
 }
 
 .lede {

@@ -124,6 +124,10 @@ check("HTML asset references resolve from repo root", () => {
     if (!path || path.startsWith("http") || path.startsWith("#")) continue;
     assert(exists(path), `Missing asset referenced by HTML: ${path}`);
   }
+  for (const tag of allTags(html, "img")) {
+    const attrs = extractAttributes(tag);
+    assert(attrs.src && exists(attrs.src), `Missing image referenced by HTML: ${attrs.src}`);
+  }
 });
 
 check("No inline CSS or runtime element style API", () => {
@@ -162,6 +166,9 @@ check("Labels, tabs, and ARIA references are valid", () => {
   assert(html.includes('tabindex="0"'), "Export panel should be keyboard focusable");
   assert(html.includes('aria-labelledby="primaryColorLabel hexInputLabel"'), "Hex input needs a programmatic label");
   assert(html.includes('aria-label="Save current primary color"'), "Primary color save button needs an accessible label");
+  assert(!html.includes("tool-title"), "Tool title text should be replaced by image branding");
+  assert(html.includes('aria-label="Spectrum Tokens"'), "Workbench should keep an accessible Spectrum Tokens label");
+  assert(html.includes("spectrum-tokens-palette-light.webp") && html.includes("spectrum-tokens-palette-dark.webp"), "Tool title should be replaced by light and dark logo images");
   assert(html.includes(">Color Match</button>"), "Primary color match action should use the full Color Match label");
   assert(html.includes('<span>Web</span>'), "Seven-stop scale depth should be labeled Web");
   assert(html.includes('name="depth" value="7" checked'), "Web scale depth should be selected by default");
@@ -190,7 +197,8 @@ check("Install metadata is absent and legacy workers retire", () => {
   const worker = read("service-worker.js");
   const server = read("scripts/serve.mjs");
   assert(!exists("manifest.webmanifest"), "Manifest should not be present");
-  assert(!fs.existsSync(new URL("assets/img", root)), "Unused app image assets should not be present");
+  assert(exists("assets/img/spectrum-tokens-palette-light.webp"), "Light palette logo image should be present");
+  assert(exists("assets/img/spectrum-tokens-palette-dark.webp"), "Dark palette logo image should be present");
   assert(!html.includes("rel=\"manifest\""), "HTML should not link a web manifest");
   assert(!html.includes("apple-mobile-web-app"), "HTML should not include Apple PWA metadata");
   assert(!html.includes("theme-color"), "HTML should not include install theme metadata");
