@@ -171,8 +171,15 @@ check("Labels, tabs, and ARIA references are valid", () => {
 check("Visible button text is included in accessible names", () => {
   const html = read("index.html");
   const js = read("assets/js/app.js");
-  assert(js.includes('`${formatExportLabel(role.name)} ${role.hex}. Open copy options`'), "Role swatch names must include visible role and hex text");
-  assert(js.includes('`${token.hex}. Open copy options for ${token.name}`'), "Spectrum swatch names must include visible hex text");
+  assert(js.includes('`${formatExportLabel(role.name)} ${role.hex}. Open copy options`'), "Role swatch names must retain role and hex in accessible names");
+  assert(!js.includes("<small>${role.hex}</small>"), "Role swatches should not render visible hex text");
+  assert(js.includes('`${token.name}. Open copy options for ${token.hex}`'), "Spectrum swatch names must include visible token names");
+  assert(!js.includes("swatch.innerHTML = `<span>${token.name}</span>`"), "Spectrum swatches should not render token or hex text inside the tile");
+  assert(js.includes("tokenButton.textContent = target.token"), "Copy menu token action should display the active token text");
+  assert(read("assets/css/styles.css").includes('.copy-menu button[data-copy="token"]'), "Copy menu token title should have dedicated styling");
+  assert(read("assets/css/styles.css").includes("border-bottom: 1px solid color-mix"), "Copy menu token title should be separated from actions");
+  assert(html.includes('data-copy="rgb"'), "Copy menu should include RGB copy");
+  assert(js.includes("return `rgb(${r}, ${g}, ${b})`;"), "RGB copy should format hex as an rgb() value");
   assert(html.includes('data-copy="scss-var"'), "Copy menu should include SCSS variable copy");
   assert(html.includes('data-copy="scss-property"'), "Copy menu should include SCSS property copy");
 });
@@ -201,6 +208,7 @@ check("Responsive CSS and motion preferences are covered", () => {
   assert(!/max-width\s*:/.test(css), "CSS should not rely on max-width constraints");
   assert(css.includes("min-height: 147px"), "Desktop role strip needs reserved height to prevent CLS");
   assert(css.includes(".saved-primary-swatches {\n  grid-column: 1 / -1;"), "Saved primary swatches should always render on their own row");
+  assert(css.includes(".spectrum-grid {\n  display: grid;\n  gap: 0;\n  padding: 12px;"), "Spectrum grid should sit on a padded card surface");
   assert(css.includes("--eyebrow: #1d4ed8") && css.includes("--eyebrow: #93c5fd"), "Heading eyebrows need light and dark theme colors");
   assert(css.includes(".pantone-modal {\n  --pantone-modal-surface: #ffffff") && css.includes("  --eyebrow: #1d4ed8;"), "Light modal should keep light-theme eyebrow color");
   assert(css.includes("prefers-reduced-motion: reduce"), "CSS missing reduced-motion handling");

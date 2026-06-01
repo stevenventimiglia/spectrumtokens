@@ -90,12 +90,13 @@
         <div class="spectrum-grid" id="spectrumGrid"></div>
         <div class="copy-menu" id="copyMenu" aria-label="Copy options" hidden>
           <button type="button" data-copy="token">Token</button>
-          <button type="button" data-copy="hex">Hex</button>
-          <button type="button" data-copy="var">CSS var</button>
-          <button type="button" data-copy="property">Property</button>
-          <button type="button" data-copy="scss-var">SCSS var</button>
-          <button type="button" data-copy="scss-property">SCSS property</button>
-          <button type="button" data-copy="pantone">Pantone match</button>
+          <button type="button" data-copy="hex">Hex Code</button>
+          <button type="button" data-copy="rgb">RGB Property</button>
+          <button type="button" data-copy="var">CSS Variable</button>
+          <button type="button" data-copy="property">CSS Property</button>
+          <button type="button" data-copy="scss-var">SCSS Variable</button>
+          <button type="button" data-copy="scss-property">SCSS Property</button>
+          <button type="button" data-copy="pantone">Color Match</button>
         </div>
       </section>
       <section class="export-section" aria-labelledby="export-title">
@@ -107,16 +108,16 @@
         </div>
         <div class="export-container">
           <div class="tab-list" role="tablist" aria-label="Export formats">
-            <button type="button" class="tab-button" id="tab-css" role="tab" aria-selected="true" aria-controls="panel-export" data-format="css">Global CSS</button>
+            <button type="button" class="tab-button" id="tab-css" role="tab" aria-selected="true" aria-controls="panel-export" data-format="css">CSS</button>
+            <button type="button" class="tab-button" id="tab-scss" role="tab" aria-selected="false" aria-controls="panel-export" data-format="scss">SCSS</button>
             <button type="button" class="tab-button" id="tab-js" role="tab" aria-selected="false" aria-controls="panel-export" data-format="js">JS</button>
+            <button type="button" class="tab-button" id="tab-json" role="tab" aria-selected="false" aria-controls="panel-export" data-format="json">JSON</button>
             <button type="button" class="tab-button" id="tab-figma" role="tab" aria-selected="false" aria-controls="panel-export" data-format="figma">Figma</button>
-            <button type="button" class="tab-button" id="tab-json" role="tab" aria-selected="false" aria-controls="panel-export" data-format="json">Tokens JSON</button>
-            <button type="button" class="tab-button" id="tab-scss" role="tab" aria-selected="false" aria-controls="panel-export" data-format="scss">SCSS Partial</button>
             <button type="button" class="tab-button" id="tab-tailwind" role="tab" aria-selected="false" aria-controls="panel-export" data-format="tailwind">Tailwind</button>
           </div>
           <div class="export-panel" id="panel-export" role="tabpanel" aria-labelledby="tab-css" tabindex="0">
             <div class="textarea-toolbar">
-              <label for="exportText" id="exportLabel">Global CSS output</label>
+              <label for="exportText" id="exportLabel">CSS output</label>
               <div class="export-actions">
                 <button type="button" class="icon-button" id="downloadButton" aria-label="Download current export">
                   <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3a1 1 0 0 1 1 1v8.59l2.3-2.29a1 1 0 1 1 1.4 1.42l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.42l2.3 2.29V4a1 1 0 0 1 1-1ZM5 15a1 1 0 0 1 1 1v2h12v-2a1 1 0 1 1 2 0v3a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1v-3a1 1 0 0 1 1-1Z"/></svg>
@@ -135,8 +136,8 @@
     <dialog class="pantone-modal" id="pantoneModal" aria-labelledby="pantoneModalTitle">
       <div class="pantone-modal-header">
         <div>
-          <p class="eyebrow">Color reference</p>
-          <h2 id="pantoneModalTitle">Pantone Match</h2>
+          <p class="eyebrow">Reference</p>
+          <h2 id="pantoneModalTitle">Color Match</h2>
         </div>
         <form method="dialog">
           <button class="modal-close" type="submit" aria-label="Close Pantone match">

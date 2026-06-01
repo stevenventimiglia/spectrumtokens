@@ -563,17 +563,6 @@ body.modal-open {
   text-transform: capitalize;
 }
 
-.role-swatch small {
-  grid-row: 3;
-  overflow: hidden;
-  color: var(--muted);
-  font-family: var(--font-mono);
-  font-size: 0.68rem;
-  text-align: center;
-  white-space: nowrap;
-  text-overflow: ellipsis;
-}
-
 
 .depth-panel {
   display: grid;
@@ -593,6 +582,11 @@ body.modal-open {
 .spectrum-grid {
   display: grid;
   gap: 0;
+  padding: 12px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 18px 50px rgba(29, 39, 51, 0.07);
 }
 
 .scale-row {
@@ -612,11 +606,11 @@ body.modal-open {
   border-radius: 0;
 }
 
-.scale-row:first-child .swatch-list {
+.spectrum-grid .scale-row:first-child .swatch-list {
   border-radius: 8px 8px 0 0;
 }
 
-.scale-row:last-child .swatch-list {
+.spectrum-grid .scale-row:last-child .swatch-list {
   border-radius: 0 0 8px 8px;
 }
 
@@ -632,16 +626,6 @@ body.modal-open {
   border: 0;
   border-right: 1px solid rgba(17, 24, 39, 0.08);
   border-radius: 0;
-}
-
-.swatch span {
-  overflow: hidden;
-  font-family: var(--font-mono);
-  font-size: 0.72rem;
-  font-weight: 760;
-  text-align: left;
-  white-space: nowrap;
-  text-overflow: ellipsis;
 }
 
 .swatch:last-child {
@@ -693,6 +677,14 @@ body.modal-open {
   background: transparent;
   border: 0;
   border-radius: 6px;
+}
+
+.copy-menu button[data-copy="token"] {
+  margin-bottom: 6px;
+  padding-bottom: 6px;
+  font-weight: 800;
+  border-bottom: 1px solid color-mix(in srgb, currentColor, transparent 78%);
+  border-radius: 6px 6px 0 0;
 }
 
 .copy-menu button:hover {

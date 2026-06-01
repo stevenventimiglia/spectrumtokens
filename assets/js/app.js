@@ -895,6 +895,10 @@ function getCopyValue(target, type) {
   if (!target) return "";
   if (type === "token") return target.token;
   if (type === "hex") return target.hex;
+  if (type === "rgb") {
+    const { r, g, b } = hexToRgb(target.hex);
+    return `rgb(${r}, ${g}, ${b})`;
+  }
   if (type === "var") return `var(--${target.token})`;
   if (type === "scss-var") return `$${target.token}`;
   if (type === "scss-property") return `$${target.token}: ${target.hex};`;
@@ -905,6 +909,11 @@ function openCopyMenu(target, anchor) {
   activeCopyTarget = target;
   activeCopyAnchor = anchor;
   const rect = anchor.getBoundingClientRect();
+  const tokenButton = copyMenu.querySelector('[data-copy="token"]');
+  if (tokenButton) {
+    tokenButton.textContent = target.token;
+    tokenButton.title = target.token;
+  }
   copyMenu.hidden = false;
   const menuLeft = Math.min(Math.max(rect.left, 8), window.innerWidth - 190);
   const pointerLeft = Math.max(18, Math.min(rect.left + rect.width / 2 - menuLeft, 160));
@@ -945,7 +954,7 @@ function renderRoles(roleData) {
     swatch.dataset.roleId = roleId;
     setDynamicRule(`[data-role-id="${roleId}"]`, `--role-color: ${role.hex}; --role-ink: ${getReadableInk(role.hex)};`);
     swatch.setAttribute("aria-label", `${formatExportLabel(role.name)} ${role.hex}. Open copy options`);
-    swatch.innerHTML = `<span aria-hidden="true"></span><strong>${role.name}</strong><small>${role.hex}</small>`;
+    swatch.innerHTML = `<span aria-hidden="true"></span><strong>${role.name}</strong>`;
     swatch.addEventListener("click", (event) => {
       event.stopPropagation();
       openCopyMenu({ token: role.name, hex: role.hex }, swatch);
@@ -975,8 +984,8 @@ function renderSpectrum(spectrumData) {
       swatch.className = "swatch";
       swatch.dataset.swatchId = swatchId;
       setDynamicRule(`[data-swatch-id="${swatchId}"]`, `--swatch-color: ${token.hex}; --swatch-ink: ${getReadableInk(token.hex)};`);
-      swatch.setAttribute("aria-label", `${token.hex}. Open copy options for ${token.name}`);
-      swatch.innerHTML = `<span>${token.hex}</span>`;
+      swatch.title = token.name;
+      swatch.setAttribute("aria-label", `${token.name}. Open copy options for ${token.hex}`);
       swatch.addEventListener("click", (event) => {
         event.stopPropagation();
         openCopyMenu({ token: token.name, hex: token.hex }, swatch);
@@ -1059,11 +1068,11 @@ function renderExports(tokenSets) {
     tailwind: buildTailwind(tokenSets)
   };
   const labels = {
-    css: "Global CSS output",
+    css: "CSS output",
     js: "JavaScript output",
+    scss: "SCSS output ('_palette.scss')",
+    json: "JSON tokens output",
     figma: "Figma tokens output",
-    json: "Tokens JSON output",
-    scss: "_palette.scss partial output",
     tailwind: "Tailwind config output"
   };
   exportLabel.textContent = labels[state.format];
