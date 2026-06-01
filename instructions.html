@@ -1,0 +1,473 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Spectrum Tokens Instructions</title>
+    <meta name="description" content="Step-by-step instructions for using Spectrum Tokens.">
+    <style>
+      :root {
+        color-scheme: light;
+        --bg: #f8fafc;
+        --surface: #ffffff;
+        --surface-soft: #eef4fb;
+        --text: #172033;
+        --muted: #637189;
+        --border: #d7e0ec;
+        --primary: #2563eb;
+        --primary-soft: #dbeafe;
+        --success: #16a34a;
+        --warning: #d97706;
+        --error: #dc2626;
+        --info: #0284c7;
+        --code: #111827;
+        --code-text: #e5edf7;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        color: var(--text);
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        line-height: 1.6;
+        background:
+          linear-gradient(135deg, rgba(37, 99, 235, 0.1), transparent 34%),
+          var(--bg);
+      }
+
+      a {
+        color: var(--primary);
+        font-weight: 760;
+      }
+
+      code {
+        padding: 0.1rem 0.3rem;
+        color: var(--code-text);
+        font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+        font-size: 0.92em;
+        background: var(--code);
+        border-radius: 4px;
+      }
+
+      .page {
+        width: min(1120px, 100%);
+        margin: 0 auto;
+        padding: 28px 18px 56px;
+      }
+
+      .hero,
+      .section,
+      .callout {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        box-shadow: 0 18px 44px rgba(23, 32, 51, 0.08);
+      }
+
+      .hero {
+        display: grid;
+        gap: 18px;
+        padding: clamp(24px, 5vw, 52px);
+      }
+
+      .eyebrow {
+        margin: 0 0 8px;
+        color: var(--primary);
+        font-size: 0.78rem;
+        font-weight: 850;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      h1,
+      h2,
+      h3 {
+        margin: 0;
+        line-height: 1.12;
+      }
+
+      h1 {
+        font-size: clamp(2.2rem, 7vw, 5rem);
+      }
+
+      h2 {
+        font-size: clamp(1.45rem, 3vw, 2.15rem);
+      }
+
+      h3 {
+        font-size: 1.05rem;
+      }
+
+      p {
+        margin: 0;
+      }
+
+      .lede {
+        max-inline-size: 760px;
+        color: var(--muted);
+        font-size: 1.1rem;
+      }
+
+      .actions,
+      .toc,
+      .grid,
+      .steps,
+      .quality-grid {
+        display: grid;
+        gap: 14px;
+      }
+
+      .actions {
+        grid-template-columns: repeat(auto-fit, minmax(190px, 1fr));
+        margin-top: 10px;
+      }
+
+      .button {
+        display: inline-grid;
+        min-height: 44px;
+        padding: 0 16px;
+        place-items: center;
+        color: #ffffff;
+        text-decoration: none;
+        background: var(--primary);
+        border-radius: 8px;
+      }
+
+      .button.secondary {
+        color: var(--primary);
+        background: var(--primary-soft);
+      }
+
+      .toc,
+      .grid {
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      }
+
+      .toc {
+        margin: 22px 0;
+      }
+
+      .toc a,
+      .card {
+        padding: 16px;
+        color: var(--text);
+        text-decoration: none;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+      }
+
+      .toc span,
+      .card span {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-size: 0.92rem;
+        font-weight: 500;
+      }
+
+      .section {
+        display: grid;
+        gap: 18px;
+        margin-top: 22px;
+        padding: clamp(20px, 4vw, 34px);
+      }
+
+      .steps {
+        counter-reset: step;
+      }
+
+      .step {
+        position: relative;
+        display: grid;
+        gap: 8px;
+        padding: 16px 16px 16px 58px;
+        background: var(--surface-soft);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+      }
+
+      .step::before {
+        counter-increment: step;
+        content: counter(step);
+        position: absolute;
+        top: 16px;
+        left: 16px;
+        display: grid;
+        width: 28px;
+        height: 28px;
+        place-items: center;
+        color: #ffffff;
+        font-weight: 850;
+        line-height: 1;
+        background: var(--primary);
+        border-radius: 50%;
+      }
+
+      .callout {
+        display: grid;
+        grid-template-columns: 8px minmax(0, 1fr);
+        gap: 14px;
+        padding: 16px;
+        box-shadow: none;
+      }
+
+      .callout::before {
+        content: "";
+        background: var(--primary);
+        border-radius: 999px;
+      }
+
+      .callout.success::before {
+        background: var(--success);
+      }
+
+      .callout.warning::before {
+        background: var(--warning);
+      }
+
+      .callout.error::before {
+        background: var(--error);
+      }
+
+      .callout.info::before {
+        background: var(--info);
+      }
+
+      .quality-grid {
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      }
+
+      .quality {
+        padding: 14px;
+        background: var(--surface-soft);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+      }
+
+      .quality strong {
+        display: block;
+      }
+
+      ul {
+        margin: 0;
+        padding-left: 1.2rem;
+      }
+
+      li + li {
+        margin-top: 0.35rem;
+      }
+
+      footer {
+        margin-top: 24px;
+        color: var(--muted);
+        font-size: 0.92rem;
+        text-align: center;
+      }
+
+      @media (min-width: 760px) {
+        .hero {
+          grid-template-columns: minmax(0, 1fr) 280px;
+          align-items: end;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <section class="hero">
+        <div>
+          <p class="eyebrow">Instructions</p>
+          <h1>Spectrum Tokens booklet</h1>
+          <p class="lede">A step-by-step guide to generating color scales, reviewing semantic roles, matching reference colors, and exporting production-ready token files.</p>
+          <div class="actions">
+            <a class="button" href="./">Open Spectrum Tokens</a>
+          </div>
+        </div>
+        <div class="callout info">
+          <div>
+            <h2>Best starting point</h2>
+            <p>Start with the primary brand color, then use the semantic preview and role swatches to judge whether the generated system feels usable.</p>
+          </div>
+        </div>
+      </section>
+
+      <nav class="toc" aria-label="Booklet sections">
+        <a href="#start">1. Start <span>Open the tool and set the primary color.</span></a>
+        <a href="#scales">2. Generate Scales <span>Adjust tint, shade, and depth.</span></a>
+        <a href="#preview">3. Review Semantics <span>Check role colors in interface examples.</span></a>
+        <a href="#copy">4. Copy Values <span>Use swatch menus and RGB/SCSS options.</span></a>
+        <a href="#match">5. Color Match <span>Compare HEX colors to local Pantone definitions.</span></a>
+        <a href="#export">6. Export <span>Download CSS, SCSS, JS, JSON, Figma, or Tailwind output.</span></a>
+      </nav>
+
+      <section class="section" id="start">
+        <div>
+          <p class="eyebrow">Step 1</p>
+          <h2>Start with the primary color</h2>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <h3>Open Spectrum Tokens</h3>
+            <p>Use <a href="./">Spectrum Tokens</a> in your browser and start with the primary color controls at the top of the page.</p>
+          </article>
+          <article class="step">
+            <h3>Choose a primary color</h3>
+            <p>Use the color picker or type a valid 6-digit HEX value. Spectrum Tokens validates the field and regenerates the palette as the color changes.</p>
+          </article>
+          <article class="step">
+            <h3>Save useful primary colors</h3>
+            <p>Use the plus button next to the primary color field to save the current color. Saved swatches appear only after at least one color is saved.</p>
+          </article>
+          <article class="step">
+            <h3>Reuse or remove saved colors</h3>
+            <p>Click a saved swatch to make it the active primary color. Hover or focus a saved swatch, then use the small remove control to delete it.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="scales">
+        <div>
+          <p class="eyebrow">Step 2</p>
+          <h2>Generate and tune the scale</h2>
+        </div>
+        <div class="grid">
+          <article class="card">
+            <h3>Light tint reach</h3>
+            <span>Controls how far the scale moves toward lighter tints.</span>
+          </article>
+          <article class="card">
+            <h3>Dark shade reach</h3>
+            <span>Controls how deep the darker stops become.</span>
+          </article>
+          <article class="card">
+            <h3>Page theme</h3>
+            <span>Switches the app preview between light and dark theme tokens.</span>
+          </article>
+          <article class="card">
+            <h3>Scale depth</h3>
+            <span>Use Web for the default 7-stop system, or choose 8 or 10 for deeper exports.</span>
+          </article>
+        </div>
+        <div class="callout">
+          <div>
+            <h3>What changes?</h3>
+            <p>Spectrum Tokens regenerates yellow, orange, red, magenta, purple, blue, cyan, green, and grey primitive rows. Grey remains tied to the active primary and theme so neutral tokens belong to the palette.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="preview">
+        <div>
+          <p class="eyebrow">Step 3</p>
+          <h2>Review semantic roles</h2>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <h3>Read the tone strip</h3>
+            <p>The tone strip shows the 300 stop for each visible-spectrum row. Use it as a quick scan for balance across hues.</p>
+          </article>
+          <article class="step">
+            <h3>Review the semantic preview</h3>
+            <p>The preview shows success, warning, error, info, note, metrics, and palette rail examples using generated role colors.</p>
+          </article>
+          <article class="step">
+            <h3>Check role swatches</h3>
+            <p>Primary, secondary, accent, note, info, success, warning, and error swatches show the semantic aliases used by exports.</p>
+          </article>
+          <article class="step">
+            <h3>Watch secondary and note behavior</h3>
+            <p>Secondary is generated from the polar opposite primary hue. Note is mapped to <code>purple-300</code> so guidance states stay visually distinct.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="copy">
+        <div>
+          <p class="eyebrow">Step 4</p>
+          <h2>Copy values from swatches</h2>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <h3>Open a swatch menu</h3>
+            <p>Click a role or spectrum swatch. The menu title shows the active token name, then lists copy actions.</p>
+          </article>
+          <article class="step">
+            <h3>Choose the value format</h3>
+            <p>Copy token name, HEX, RGB, CSS variable, CSS property, SCSS variable, or SCSS property depending on the workflow.</p>
+          </article>
+          <article class="step">
+            <h3>Use Color Match when needed</h3>
+            <p>The same menu can open the color match modal for the selected swatch.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="match">
+        <div>
+          <p class="eyebrow">Step 5</p>
+          <h2>Match a color to local Pantone definitions</h2>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <h3>Open Color Match</h3>
+            <p>Use the primary field Color Match button, or open it from a swatch copy menu.</p>
+          </article>
+          <article class="step">
+            <h3>Review ranked matches</h3>
+            <p>The modal compares the active HEX color to local reference definitions using Lab D65 values and CIEDE2000 distance.</p>
+          </article>
+          <article class="step">
+            <h3>Apply strong matches</h3>
+            <p>Excellent and Close results include an eye action. Use it to apply that match as the primary color and close the modal.</p>
+          </article>
+        </div>
+        <div class="quality-grid">
+          <div class="quality"><strong>Excellent</strong><span>Delta E <= 2. Best digital reference fit.</span></div>
+          <div class="quality"><strong>Close</strong><span>Delta E <= 5. Strong candidate for exploration.</span></div>
+          <div class="quality"><strong>Compatible</strong><span>Delta E <= 10. Related, but should be reviewed carefully.</span></div>
+          <div class="quality"><strong>Distant</strong><span>Delta E above 10. Not a strong match.</span></div>
+        </div>
+        <div class="callout warning">
+          <div>
+            <h3>Reference note</h3>
+            <p>Color matching is a digital approximation. Use licensed Pantone workflows, print proofing, and vendor review for production ink decisions.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="export">
+        <div>
+          <p class="eyebrow">Step 6</p>
+          <h2>Export production tokens</h2>
+        </div>
+        <div class="grid">
+          <article class="card"><h3>CSS</h3><span>Global CSS custom properties.</span></article>
+          <article class="card"><h3>SCSS</h3><span>Organized <code>_palette.scss</code> partial with maps, helpers, and variables.</span></article>
+          <article class="card"><h3>JS</h3><span>Role, spectrum, and semantic token objects.</span></article>
+          <article class="card"><h3>JSON</h3><span>Design-token-oriented JSON with light and dark modes.</span></article>
+          <article class="card"><h3>Figma</h3><span>Figma-compatible token JSON.</span></article>
+          <article class="card"><h3>Tailwind</h3><span>Palette config object for Tailwind workflows.</span></article>
+        </div>
+        <div class="steps">
+          <article class="step">
+            <h3>Select a tab</h3>
+            <p>Choose the export format from the tab list. The output panel updates immediately.</p>
+          </article>
+          <article class="step">
+            <h3>Copy or download</h3>
+            <p>Use the toolbar copy action for clipboard workflows, or download the current export as a file.</p>
+          </article>
+        </div>
+      </section>
+
+      <footer>
+        <p>&copy; 2026 ABLE-UI, LLC</p>
+        <p>Spectrum Tokens v1.7.0</p>
+      </footer>
+    </main>
+  </body>
+</html>

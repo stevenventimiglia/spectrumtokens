@@ -170,6 +170,7 @@ check("Labels, tabs, and ARIA references are valid", () => {
   assert(!html.includes("tool-title"), "Tool title text should be replaced by image branding");
   assert(html.includes('aria-label="Spectrum Tokens"'), "Workbench should keep an accessible Spectrum Tokens label");
   assert(html.includes("spectrum-tokens-palette-light.webp") && html.includes("spectrum-tokens-palette-dark.webp"), "Tool title should be replaced by light and dark logo images");
+  assert(html.includes("&copy; 2026 ABLE-UI, LLC") && html.includes("Spectrum Tokens v1.7.0"), "App footer should include company copyright and version");
   assert(html.includes(">Color Match</button>"), "Primary color match action should use the full Color Match label");
   assert(html.includes('<span>Web</span>'), "Seven-stop scale depth should be labeled Web");
   assert(html.includes('name="depth" value="7" checked'), "Web scale depth should be selected by default");
@@ -206,7 +207,7 @@ check("Install metadata is absent and legacy workers retire", () => {
   assert(exists("assets/img/spectrum-tokens-palette-light.webp"), "Light palette logo image should be present");
   assert(exists("assets/img/spectrum-tokens-palette-dark.webp"), "Dark palette logo image should be present");
   assert(!html.includes("rel=\"manifest\""), "HTML should not link a web manifest");
-  assert(!html.includes("apple-mobile-web-app"), "HTML should not include Apple PWA metadata");
+  assert(!html.includes("apple-mobile-web-app"), "HTML should not include Apple install metadata");
   assert(!html.includes("theme-color"), "HTML should not include install theme metadata");
   assert(!js.includes(".register("), "App should not register a service worker");
   assert(js.includes("retireLegacyServiceWorkers"), "App should unregister previous service workers");
@@ -214,6 +215,18 @@ check("Install metadata is absent and legacy workers retire", () => {
   assert(worker.includes("caches.delete"), "Service worker should clear legacy caches");
   assert(server.includes('pathname === "/service-worker.js"') && server.includes('"no-store"'), "Service worker response should not be cached");
   assert(!server.includes("immutable"), "Static server should not serve same-name assets as immutable");
+});
+
+check("Documentation reflects current shipped app", () => {
+  const instructions = read("instructions.html");
+  assert(exists("instructions.html"), "Missing HTML instructions booklet");
+  assert(instructions.includes("Spectrum Tokens booklet"), "Instruction booklet should have a clear title");
+  assert(instructions.includes("&copy; 2026 ABLE-UI, LLC") && instructions.includes("Spectrum Tokens v1.7.0"), "Instruction booklet should include company copyright and version");
+  assert(instructions.includes("Step 1") && instructions.includes("Step 6"), "Instruction booklet should provide end-user step-by-step sections");
+  assert(instructions.includes("Excellent") && instructions.includes("Delta E <= 2"), "Instruction booklet should document color match quality labels");
+  assert(!/\bPWA\b/i.test(instructions), "Instruction booklet should not use PWA product language");
+  assert(!/\bnpm\b|service-worker|service worker|local server|run the app|run \w+/i.test(instructions), "Instruction booklet should not include operator-only setup or cache language");
+  assert(!instructions.includes("index.html") && !instructions.includes("README.md") && !instructions.includes("CHANGELOG.md"), "Instruction booklet should read like website content, not repository navigation");
 });
 
 check("Responsive CSS and motion preferences are covered", () => {

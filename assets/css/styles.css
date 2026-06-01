@@ -753,6 +753,21 @@ body.modal-open {
   padding: 0 20px 48px;
 }
 
+.site-footer {
+  display: grid;
+  gap: 4px;
+  justify-items: center;
+  padding: 0 20px 40px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  font-weight: 700;
+  text-align: center;
+}
+
+.site-footer p {
+  margin: 0;
+}
+
 .section-heading {
   align-items: flex-start;
   flex-direction: column;
