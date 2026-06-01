@@ -166,6 +166,7 @@ check("Labels, tabs, and ARIA references are valid", () => {
   assert(html.includes('tabindex="0"'), "Export panel should be keyboard focusable");
   assert(html.includes('aria-labelledby="primaryColorLabel hexInputLabel"'), "Hex input needs a programmatic label");
   assert(html.includes('aria-label="Save current primary color"'), "Primary color save button needs an accessible label");
+  assert(!html.includes('id="savedPrimarySwatches"'), "Saved primary swatch markup should only exist after the user saves a primary color");
   assert(!html.includes("tool-title"), "Tool title text should be replaced by image branding");
   assert(html.includes('aria-label="Spectrum Tokens"'), "Workbench should keep an accessible Spectrum Tokens label");
   assert(html.includes("spectrum-tokens-palette-light.webp") && html.includes("spectrum-tokens-palette-dark.webp"), "Tool title should be replaced by light and dark logo images");
@@ -173,6 +174,11 @@ check("Labels, tabs, and ARIA references are valid", () => {
   assert(html.includes('<span>Web</span>'), "Seven-stop scale depth should be labeled Web");
   assert(html.includes('name="depth" value="7" checked'), "Web scale depth should be selected by default");
   assert(html.includes('class="modal-close"') && html.includes('aria-label="Close Pantone match"') && html.includes("<svg"), "Pantone modal close button should use an accessible icon");
+  assert(html.includes('aria-label="Semantic role examples"'), "Semantic preview should expose detailed role examples");
+  assert(html.includes("Palette saved") && html.includes("Brand review") && html.includes("Alias missing") && html.includes("Export ready"), "Semantic preview should show concrete status messages");
+  assert(html.includes("semantic-message success") && html.includes("semantic-message warning") && html.includes("semantic-message error") && html.includes("semantic-message info"), "Semantic preview should include all status message roles");
+  assert(html.includes("semantic-alert success") && html.includes("semantic-alert warning") && html.includes("semantic-alert error"), "Semantic preview alerts should render as individual callout rows");
+  assert(html.includes("semantic-metric success") && html.includes("semantic-rail"), "Semantic preview should include visual metric and palette rail elements");
 });
 
 check("Visible button text is included in accessible names", () => {
@@ -217,6 +223,8 @@ check("Responsive CSS and motion preferences are covered", () => {
   assert(css.includes("min-height: 147px"), "Desktop role strip needs reserved height to prevent CLS");
   assert(css.includes(".saved-primary-swatches {\n  grid-column: 1 / -1;"), "Saved primary swatches should always render on their own row");
   assert(css.includes(".spectrum-grid {\n  display: grid;\n  gap: 0;\n  padding: 12px;"), "Spectrum grid should sit on a padded card surface");
+  assert(!css.includes("grid-template-columns: minmax(0, 1.1fr) auto minmax(220px, 0.62fr);"), "Semantic preview should not be forced into a narrow desktop column");
+  assert(css.includes(".semantic-board {\n  display: grid;\n  width: 100%;"), "Semantic preview board should fill the preview surface responsively");
   assert(css.includes("--eyebrow: #1d4ed8") && css.includes("--eyebrow: #93c5fd"), "Heading eyebrows need light and dark theme colors");
   assert(css.includes(".pantone-modal {\n  --pantone-modal-surface: #ffffff") && css.includes("  --eyebrow: #1d4ed8;"), "Light modal should keep light-theme eyebrow color");
   assert(css.includes("prefers-reduced-motion: reduce"), "CSS missing reduced-motion handling");
@@ -247,11 +255,23 @@ check("Generated app render and exports are valid", () => {
         return derivedRoleScales.find((role) => role.name === 'secondary')?.hueOffset === 180;
       })(),
       savedPrimaryRender: (() => {
+        state.savedPrimaries = [];
+        renderSavedPrimaries();
+        const emptyRemoved = savedPrimarySwatches === null;
         state.savedPrimaries = ['#123456'];
         renderSavedPrimaries();
-        return document.querySelector('#savedPrimarySwatches').children.length === 1 &&
+        return emptyRemoved &&
+          savedPrimarySwatches?.children.length === 1 &&
           document.styleSheets[0].cssRules.some((rule) => rule.selectorText.startsWith('[data-saved-primary-id='));
       })(),
+      previewRoleVariables: document.styleSheets[0].cssRules.some((rule) =>
+        rule.cssText.includes('--preview-success') && rule.cssText.includes('--preview-error')
+      ),
+      previewPrimaryTint: document.styleSheets[0].cssRules.some((rule) =>
+        rule.cssText.includes('--preview-bg: color-mix(in srgb,') &&
+        rule.cssText.includes('--preview-bg-lift: color-mix(in srgb,') &&
+        rule.cssText.includes('--preview-border: color-mix(in srgb,')
+      ),
       greyChanges: (() => {
         const before = findSpectrumToken(buildSpectrumData('light'), 'grey', 300).hex;
         state.primary = '#EF4444';
@@ -268,8 +288,10 @@ check("Generated app render and exports are valid", () => {
   assert(payload.jsonOk && payload.figmaOk, "JSON/Figma exports did not parse");
   assert(payload.noteMatchesPurple300, "Note role should use the purple 300 token");
   assert(payload.secondaryIsComplement, "Secondary role should use the polar opposite primary hue");
-  assert(payload.savedPrimaryRender, "Saved primary swatches should render with dynamic color rules");
+  assert(payload.savedPrimaryRender, "Saved primary swatches should be created only when needed and render with dynamic color rules");
   assert(payload.greyChanges, "Grey scale should react to primary color changes");
+  assert(payload.previewRoleVariables, "Preview should map generated semantic roles into CSS variables");
+  assert(payload.previewPrimaryTint, "Preview shell should tint from the active primary color");
 });
 
 check("Pantone definitions and matcher hooks are valid", () => {

@@ -27,7 +27,6 @@
               <input id="hexInput" name="hexInput" type="text" value="#3B82F6" inputmode="text" maxlength="7" spellcheck="false" aria-labelledby="primaryColorLabel hexInputLabel" aria-describedby="hexStatus">
               <button class="add-primary-button" id="addPrimaryButton" type="button" aria-label="Save current primary color">+</button>
               <button class="pantone-primary-button" id="pantonePrimaryButton" type="button">Color Match</button>
-              <div class="saved-primary-swatches" id="savedPrimarySwatches" aria-label="Saved primary colors"></div>
             </div>
             <span class="sr-only" id="colorPickerLabel">color picker</span>
             <span class="sr-only" id="hexInputLabel">hex value</span>
@@ -59,18 +58,95 @@
       <section class="preview-band" aria-label="Generated system preview">
         <div class="tone-strip" id="toneStrip" aria-label="300 stop colors"></div>
         <div class="preview-surface">
-          <div>
+          <div class="preview-copy">
             <span class="preview-kicker">Semantic preview</span>
-            <h2>Accessible interface colors mapped from the generated primitives.</h2>
+            <h2>Palette roles applied to a product status panel.</h2>
+            <p>Primary actions, supporting accents, and state colors update from the generated token system.</p>
           </div>
           <div class="preview-actions">
-            <button type="button">Primary</button>
-            <button type="button" class="ghost-button">Secondary</button>
+            <button type="button">Save palette</button>
+            <button type="button" class="secondary-button">Review scale</button>
+            <button type="button" class="ghost-button">Export tokens</button>
           </div>
-          <div class="mini-system">
-            <span>Surface</span>
-            <strong>Text</strong>
-            <small>Border and focus states</small>
+          <div class="semantic-board" aria-label="Semantic role examples">
+            <div class="semantic-messages" aria-label="Status messages">
+              <div class="semantic-message success">
+                <span class="semantic-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M9.6 16.6 4.9 12l1.8-1.8 2.9 2.9 7.7-7.7L19.1 7Z"/></svg>
+                </span>
+                <div>
+                  <strong>Palette saved</strong>
+                  <p>All role tokens passed contrast checks.</p>
+                </div>
+              </div>
+              <div class="semantic-message warning">
+                <span class="semantic-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M12 3 22 20H2Zm0 5.8a1 1 0 0 0-1 1v4.4a1 1 0 1 0 2 0V9.8a1 1 0 0 0-1-1Zm0 8a1.2 1.2 0 1 0 0 2.4 1.2 1.2 0 0 0 0-2.4Z"/></svg>
+                </span>
+                <div>
+                  <strong>Brand review</strong>
+                  <p>Accent usage is close to the primary range.</p>
+                </div>
+              </div>
+              <div class="semantic-message error">
+                <span class="semantic-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="m12 10.2 4.2-4.2 1.8 1.8-4.2 4.2 4.2 4.2-1.8 1.8-4.2-4.2-4.2 4.2L6 16.2l4.2-4.2L6 7.8 7.8 6Z"/></svg>
+                </span>
+                <div>
+                  <strong>Alias missing</strong>
+                  <p>Error text needs a matching surface token.</p>
+                </div>
+              </div>
+              <div class="semantic-message info">
+                <span class="semantic-icon" aria-hidden="true">
+                  <svg viewBox="0 0 24 24"><path d="M11 10h2v8h-2Zm0-4h2v2h-2Zm1-4a10 10 0 1 0 0 20 10 10 0 0 0 0-20Z"/></svg>
+                </span>
+                <div>
+                  <strong>Export ready</strong>
+                  <p>SCSS, CSS, JSON, and Figma values are aligned.</p>
+                </div>
+              </div>
+            </div>
+            <div class="semantic-metrics">
+              <div class="semantic-metric success">
+                <span></span>
+                <strong>AA</strong>
+                <small>contrast</small>
+              </div>
+              <div class="semantic-metric info">
+                <span></span>
+                <strong>63</strong>
+                <small>tokens</small>
+              </div>
+              <div class="semantic-metric warning">
+                <span></span>
+                <strong>4</strong>
+                <small>reviews</small>
+              </div>
+            </div>
+            <div class="semantic-rail" aria-hidden="true">
+              <span class="primary"></span>
+              <span class="secondary"></span>
+              <span class="accent"></span>
+            </div>
+            <div class="semantic-alerts">
+              <div class="semantic-alert success">
+                <span></span>
+                <strong>Synced</strong>
+              </div>
+              <div class="semantic-alert warning">
+                <span></span>
+                <strong>Check brand</strong>
+              </div>
+              <div class="semantic-alert error">
+                <span></span>
+                <strong>Missing alias</strong>
+              </div>
+            </div>
+            <div class="semantic-note">
+              <span></span>
+              <p>Note guidance stays distinct from alerts while still feeling connected to the palette.</p>
+            </div>
           </div>
         </div>
       </section>

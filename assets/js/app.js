@@ -68,7 +68,8 @@ const hexInput = document.querySelector("#hexInput");
 const hexStatus = document.querySelector("#hexStatus");
 const addPrimaryButton = document.querySelector("#addPrimaryButton");
 const pantonePrimaryButton = document.querySelector("#pantonePrimaryButton");
-const savedPrimarySwatches = document.querySelector("#savedPrimarySwatches");
+const colorInputRow = document.querySelector(".color-input-row");
+let savedPrimarySwatches = document.querySelector("#savedPrimarySwatches");
 const lightnessRange = document.querySelector("#lightnessRange");
 const darknessRange = document.querySelector("#darknessRange");
 const lightnessOutput = document.querySelector("#lightnessOutput");
@@ -998,8 +999,26 @@ function renderSpectrum(spectrumData) {
   });
 }
 
+function ensureSavedPrimarySwatches() {
+  if (!savedPrimarySwatches) {
+    savedPrimarySwatches = document.createElement("div");
+    savedPrimarySwatches.className = "saved-primary-swatches";
+    savedPrimarySwatches.id = "savedPrimarySwatches";
+    savedPrimarySwatches.setAttribute("aria-label", "Saved primary colors");
+    colorInputRow.append(savedPrimarySwatches);
+  }
+  return savedPrimarySwatches;
+}
+
 function renderSavedPrimaries() {
-  savedPrimarySwatches.innerHTML = "";
+  if (!state.savedPrimaries.length) {
+    savedPrimarySwatches?.remove();
+    savedPrimarySwatches = null;
+    return;
+  }
+
+  const container = ensureSavedPrimarySwatches();
+  container.innerHTML = "";
   state.savedPrimaries.forEach((hex) => {
     const item = document.createElement("span");
     const savedId = nextGeneratedId("saved-primary");
@@ -1025,7 +1044,7 @@ function renderSavedPrimaries() {
     });
 
     item.append(swatch, remove);
-    savedPrimarySwatches.append(item);
+    container.append(item);
   });
 }
 
@@ -1091,6 +1110,7 @@ function updatePreview(roleData, spectrumData) {
   const byName = Object.fromEntries(getFlatSpectrumTokens(spectrumData).map((token) => [token.name, token.hex]));
   const theme = themeTokens[state.theme];
   const previewPrimary = roles.primary || state.primary;
+  const previewSecondary = roles.secondary || previewPrimary;
 
   setDynamicRule(
     "html[data-generated-preview]",
@@ -1099,11 +1119,22 @@ function updatePreview(roleData, spectrumData) {
       `--primary-soft: ${byName["purple-100"] || previewPrimary}`,
       `--primary-deep: ${byName["purple-600"] || previewPrimary}`,
       `--focus: ${previewPrimary}`,
-      `--preview-bg: ${byName["purple-100"] || theme.surfaceRaised}`,
-      `--preview-border: ${byName["purple-200"] || theme.border}`,
+      `--preview-bg: color-mix(in srgb, ${previewPrimary}, ${theme.surfaceRaised} 90%)`,
+      `--preview-bg-lift: color-mix(in srgb, ${previewPrimary}, ${theme.surfaceRaised} 96%)`,
+      `--preview-border: color-mix(in srgb, ${previewPrimary}, ${theme.border} 62%)`,
+      `--preview-card: ${theme.surface}`,
       `--preview-primary: ${previewPrimary}`,
       `--preview-on-primary: ${getReadableInk(previewPrimary)}`,
-      `--preview-text: ${theme.text}`
+      `--preview-secondary: ${previewSecondary}`,
+      `--preview-on-secondary: ${getReadableInk(previewSecondary)}`,
+      `--preview-accent: ${roles.accent || previewPrimary}`,
+      `--preview-note: ${roles.note || byName["purple-300"] || previewPrimary}`,
+      `--preview-info: ${roles.info || byName["grey-300"] || previewPrimary}`,
+      `--preview-success: ${roles.success || byName["green-300"] || previewPrimary}`,
+      `--preview-warning: ${roles.warning || byName["orange-300"] || previewPrimary}`,
+      `--preview-error: ${roles.error || byName["red-300"] || previewPrimary}`,
+      `--preview-text: ${theme.text}`,
+      `--preview-muted: ${theme.muted}`
     ].join("; ")
   );
 }

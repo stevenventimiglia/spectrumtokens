@@ -472,12 +472,12 @@ body.modal-open {
 .preview-surface {
   display: grid;
   grid-template-columns: 1fr;
-  gap: 24px;
-  align-items: center;
+  gap: 18px;
+  align-items: stretch;
   padding: 18px;
   color: var(--preview-text, #172033);
   background:
-    linear-gradient(135deg, color-mix(in srgb, var(--preview-bg, #eff6ff), white 34%), var(--preview-bg, #eff6ff)),
+    linear-gradient(135deg, var(--preview-bg-lift, #f8fbff), var(--preview-bg, #eff6ff)),
     var(--preview-bg, #eff6ff);
   border: 1px solid var(--preview-border, #bfdbfe);
   border-radius: 8px;
@@ -485,10 +485,17 @@ body.modal-open {
 
 .preview-surface h2 {
   inline-size: min(760px, 100%);
-  margin: 0;
+  margin: 0 0 12px;
   font-size: clamp(1.35rem, 2.4vw, 2.4rem);
   line-height: 1.12;
   letter-spacing: 0;
+}
+
+.preview-copy p {
+  inline-size: min(720px, 100%);
+  margin-bottom: 0;
+  color: var(--preview-muted, var(--muted));
+  line-height: 1.6;
 }
 
 .preview-actions {
@@ -513,18 +520,232 @@ body.modal-open {
   border-color: currentColor;
 }
 
-.mini-system {
+.preview-actions .secondary-button {
+  color: var(--preview-on-secondary, #ffffff);
+  background: var(--preview-secondary, #7c3aed);
+}
+
+.semantic-board {
   display: grid;
-  gap: 8px;
-  padding: 18px;
-  background: color-mix(in srgb, var(--surface), transparent 8%);
+  width: 100%;
+  min-width: 0;
+  gap: 14px;
+  padding: 16px;
+  background: var(--preview-card, var(--surface));
   border: 1px solid var(--preview-border, #bfdbfe);
+  border-radius: 8px;
+  box-shadow: 0 18px 42px rgba(29, 39, 51, 0.12);
+}
+
+.semantic-messages {
+  display: grid;
+  min-width: 0;
+  gap: 10px;
+}
+
+.semantic-message {
+  --semantic-color: var(--preview-info);
+  display: grid;
+  grid-template-columns: 36px minmax(0, 1fr);
+  gap: 10px;
+  align-items: start;
+  min-width: 0;
+  padding: 12px;
+  color: var(--preview-text, var(--text));
+  background: color-mix(in srgb, var(--semantic-color), transparent 86%);
+  border: 1px solid color-mix(in srgb, var(--semantic-color), transparent 48%);
   border-radius: 8px;
 }
 
-.mini-system span,
-.mini-system small {
-  color: var(--muted);
+.semantic-icon {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  color: var(--semantic-color);
+  background: color-mix(in srgb, var(--semantic-color), transparent 84%);
+  border-radius: 50%;
+}
+
+.semantic-icon svg {
+  width: 22px;
+  height: 22px;
+  fill: currentColor;
+}
+
+.semantic-message div {
+  min-width: 0;
+}
+
+.semantic-metric small {
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.semantic-message strong {
+  display: block;
+  margin-bottom: 3px;
+  color: var(--preview-text, var(--text));
+  font-size: 0.96rem;
+  line-height: 1.2;
+}
+
+.semantic-message p {
+  margin: 0;
+  color: var(--preview-muted, var(--muted));
+  font-size: 0.84rem;
+  line-height: 1.35;
+}
+
+.semantic-message.success {
+  --semantic-color: var(--preview-success);
+}
+
+.semantic-message.warning {
+  --semantic-color: var(--preview-warning);
+}
+
+.semantic-message.error {
+  --semantic-color: var(--preview-error);
+}
+
+.semantic-message.info {
+  --semantic-color: var(--preview-info);
+}
+
+.semantic-metrics {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 8px;
+}
+
+.semantic-metric {
+  display: grid;
+  gap: 6px;
+  min-width: 0;
+  padding: 10px;
+  background: color-mix(in srgb, var(--semantic-color), transparent 88%);
+  border: 1px solid color-mix(in srgb, var(--semantic-color), transparent 58%);
+  border-radius: 8px;
+}
+
+.semantic-metric span {
+  width: 20px;
+  height: 5px;
+  background: var(--semantic-color);
+  border-radius: 999px;
+}
+
+.semantic-metric strong {
+  color: var(--preview-text, var(--text));
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.semantic-metric small {
+  color: var(--preview-muted, var(--muted));
+}
+
+.semantic-metric.success {
+  --semantic-color: var(--preview-success);
+}
+
+.semantic-metric.info {
+  --semantic-color: var(--preview-info);
+}
+
+.semantic-metric.warning {
+  --semantic-color: var(--preview-warning);
+}
+
+.semantic-rail {
+  display: grid;
+  grid-template-columns: 1.4fr 1fr 0.7fr;
+  gap: 6px;
+  height: 12px;
+}
+
+.semantic-rail span {
+  border-radius: 999px;
+}
+
+.semantic-rail .primary {
+  background: var(--preview-primary);
+}
+
+.semantic-rail .secondary {
+  background: var(--preview-secondary);
+}
+
+.semantic-rail .accent {
+  background: var(--preview-accent);
+}
+
+.semantic-alerts {
+  display: grid;
+  gap: 8px;
+}
+
+.semantic-alert {
+  --semantic-color: var(--preview-info);
+  display: grid;
+  grid-template-columns: 6px minmax(0, 1fr);
+  gap: 10px;
+  align-items: center;
+  min-height: 36px;
+  padding: 9px 10px;
+  color: var(--preview-text, var(--text));
+  background: color-mix(in srgb, var(--semantic-color), transparent 84%);
+  border-radius: 6px;
+}
+
+.semantic-alert span {
+  width: 6px;
+  height: 100%;
+  min-height: 18px;
+  background: var(--semantic-color);
+  border-radius: 999px;
+}
+
+.semantic-alert strong {
+  min-width: 0;
+  font-size: 0.8rem;
+  font-weight: 850;
+  line-height: 1.2;
+}
+
+.semantic-alert.success {
+  --semantic-color: var(--preview-success);
+}
+
+.semantic-alert.warning {
+  --semantic-color: var(--preview-warning);
+}
+
+.semantic-alert.error {
+  --semantic-color: var(--preview-error);
+}
+
+.semantic-note {
+  display: grid;
+  grid-template-columns: 8px minmax(0, 1fr);
+  gap: 10px;
+  padding: 10px;
+  color: var(--preview-text, var(--text));
+  background: color-mix(in srgb, var(--preview-note), transparent 82%);
+  border-radius: 6px;
+}
+
+.semantic-note span {
+  background: var(--preview-note);
+  border-radius: 999px;
+}
+
+.semantic-note p {
+  margin: 0;
+  font-size: 0.86rem;
+  line-height: 1.45;
 }
 
 .spectrum-section,
@@ -1066,6 +1287,26 @@ textarea {
     padding: 0 clamp(20px, 4vw, 56px) 42px;
   }
 
+  .semantic-board {
+    grid-template-columns: minmax(240px, 0.82fr) minmax(0, 1.18fr);
+    align-items: stretch;
+  }
+
+  .semantic-messages {
+    grid-row: span 4;
+    min-height: 100%;
+  }
+
+  .semantic-metrics {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .semantic-rail,
+  .semantic-alerts,
+  .semantic-note {
+    grid-column: 2;
+  }
+
   .spectrum-section,
   .export-section {
     padding: 0 clamp(20px, 4vw, 56px) 48px;
@@ -1129,10 +1370,6 @@ textarea {
 
   .tone-strip {
     grid-template-columns: repeat(8, minmax(0, 1fr));
-  }
-
-  .preview-surface {
-    grid-template-columns: minmax(0, 1.1fr) auto minmax(220px, 0.62fr);
   }
 
   .role-strip {
